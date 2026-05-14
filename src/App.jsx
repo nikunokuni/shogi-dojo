@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { KAKUGEN_LIST, KAKOI_COMPATIBILITY } from "./data/kakugen";
- 
+
 // ─── 定数 ────────────────────────────────────────────────────────────────────
- 
+
 // ─── キャラクター ─────────────────────────────────────────────────────────────
- 
+
 const CHARACTERS = [
   {
     id: "tsurugi",
@@ -48,11 +48,11 @@ const CHARACTERS = [
 採点も「あー惜しい！方向性はあってたんだけど〜」「ウチも最初そう思ってたわ〜」みたいな、寄り添って励ます感じで。`,
   },
 ];
- 
+
 function pickCharacter() {
   return CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
 }
- 
+
 const CATEGORIES = [
   { id: "tesuji",  label: "手筋・格言",   icon: "⚔️",  color: "#c0392b", desc: "知っておくべき有名格言・手筋" },
   { id: "keisei",  label: "形勢判断",     icon: "⚖️",  color: "#2980b9", desc: "駒割・玉の安全度・駒効率の基準" },
@@ -60,41 +60,53 @@ const CATEGORIES = [
   { id: "joseki",  label: "定跡の考え方", icon: "📖",  color: "#16a085", desc: "定跡の「なぜ」を理解する" },
   { id: "dankai",  label: "序中終盤",     icon: "🎯",  color: "#d35400", desc: "局面段階ごとの考え方の違い" },
 ];
- 
+
 const DIFFICULTIES = ["初級", "中級", "上級"];
- 
+
 const STRATEGIES = [
   "居飛車全般", "角換わり", "相掛かり",
   "振り飛車全般", "中飛車", "相振り飛車",
 ];
- 
+
 const DIFF_DESC = {
   初級: "将棋を始めて間もない人向け。誰もが知る有名格言・基本的な形勢判断など、知名度が高くシンプルな問題。答えは短く一言で言える程度。",
   中級: "級位者向け。有名な手筋・囲いの特性・定跡の基本的な考え方。答えは2〜3文程度で説明できる内容。",
   上級: "段位者向け。複数の要素が絡む形勢判断・相性の細かい違い・定跡選択の判断基準など。やや複雑な問題。",
 };
- 
+
 const diffColor = { 初級: "#27ae60", 中級: "#e67e22", 上級: "#c0392b" };
- 
+
 // ─── プロンプト ──────────────────────────────────────────────────────────────
- 
+
 function makeSystem(character) {
   const charPrompt = character ? `\n\n【キャラクター設定】\n${character.personality}\nこのキャラクターとして出題・採点してください。` : "";
   return `あなたは将棋の指導者です。大局観トレーニングの問題を出題・採点します。${charPrompt}
- 
+
 【絶対ルール】
 - 具体的な盤面・手順は扱わない。考え方・原則・格言を問う
 - 問題文は2〜3文以内（短くテンポよく）
 - 格言は「歩のない将棋は負け将棋」「玉の近くに金を打つな」「と金の遠打ち」「攻めは飛角銀桂」など、将棋ファンに広く知られた格言を優先する
 - 回答はJSONのみ。前置きやMarkdownコードブロック不要
- 
+
 【出題JSON形式】
-{"type":"q","q":"問題文（短く）","hint":"ヒント一言","ans":"模範解答（1〜3文）","exp":"解説（2〜4文）","diff":"初級/中級/上級"}
- 
+{"type":"q","q":"問題文（短く）","hint":"ヒント一言","ans":"模範解答（1〜3文）","exp":"解説（2〜4文）","diff":"初級/中級/上級","keywords":["採点キーワード1","採点キーワード2"]}
+
+【採点ルーブリック】
+以下の基準で採点し、合計をbaseScoreとする：
+- 格言名・結論が正確に言えている：40点
+- 理由・考え方の方向性が合っている：30点
+- キーワードが含まれている（渡されたkeywordsを参照）：20点
+- 応用や補足まで言えている：10点
+
+キャラクター補正：
+- ツルギの場合：baseScoreから10点引く（厳格・丁寧に不足を指摘）
+- イロハの場合：baseScoreに10点足す（甘め・方向性重視、上限100）
+- カエデの場合：baseScoreそのまま（一緒に確認する姿勢）
+
 【採点JSON形式】
 {"type":"fb","score":0〜100,"good":"良い点（1文）","fix":"改善点（1文）","model":{"ans":"解答（格言名・結論を一言で）","focus":"盤面・局面で注目すべきポイント（1文）","aim":"この考え方の後の狙い・目的（1文）","tip":"覚え方・応用のコツ（1文）"},"msg":"一言励まし"}`;
 }
- 
+
 function makeQuestionPrompt({ category, difficulty, strategy, usedAnswers }) {
   const catLabel = CATEGORIES.find(c => c.id === category)?.label;
   const catGuide = {
@@ -104,23 +116,25 @@ function makeQuestionPrompt({ category, difficulty, strategy, usedAnswers }) {
     joseki:  `${strategy ? `「${strategy}」の定跡を題材に、` : ""}定跡の背景にある「なぜその手を指すのか」の考え方を問う問題。`,
     dankai:  `序盤・中盤・終盤それぞれの段階での考え方の違いや優先事項を問う問題。`,
   };
- 
+
   const exclusion = usedAnswers?.length
     ? `\n【禁止】以下は直近の出題済み解答です。同じ答えになる問題は絶対に出さないこと：${usedAnswers.map(a => `「${a}」`).join("、")}`
     : "";
   const seed = Math.floor(Math.random() * 100000);
- 
+
   return `乱数シード:${seed}\nカテゴリ「${catLabel}」、難易度「${difficulty}」（${DIFF_DESC[difficulty]}）で問題を1問出題してください。
 出題方針：${catGuide[category]}${exclusion}
 JSONのみ返してください。`;
 }
- 
-function makeFeedbackPrompt(question, userAnswer, modelAnswer) {
-  return `問題：${question}\n参考解答：${modelAnswer}\nユーザー回答：${userAnswer}\n\n採点してください。model欄は必ずオブジェクト形式（ans/focus/aim/tip）で返してください。JSONのみ返してください。`;
+
+function makeFeedbackPrompt(question, userAnswer, modelAnswer, keywords, characterName) {
+  const kwText = keywords?.length ? `\n採点キーワード（含まれていたら加点）：${keywords.join("、")}` : "";
+  const charText = characterName ? `\nあなたは${characterName}として採点してください。` : "";
+  return `問題：${question}\n参考解答：${modelAnswer}\nユーザー回答：${userAnswer}${kwText}${charText}\n\n採点ルーブリックに従って採点してください。model欄は必ずオブジェクト形式（ans/focus/aim/tip）で返してください。JSONのみ返してください。`;
 }
- 
+
 // ─── API ─────────────────────────────────────────────────────────────────────
- 
+
 async function callClaude(messages, character) {
   const apiKey = process.env.REACT_APP_GEMINI_API_KEY || "";
   const systemText = makeSystem(character);
@@ -149,9 +163,9 @@ async function callClaude(messages, character) {
   const clean = text.replace(/```json|```/g, "").trim();
   return JSON.parse(clean);
 }
- 
+
 // ─── メインコンポーネント ─────────────────────────────────────────────────────
- 
+
 export default function ShogiTrainer() {
   const [screen, setScreen] = useState("home");
   const [category, setCategory] = useState(null);
@@ -167,10 +181,10 @@ export default function ShogiTrainer() {
   const [err, setErr] = useState(null);
   const [usedAnswers, setUsedAnswers] = useState({});
   const [character, setCharacter] = useState(null);
- 
+
   const catObj = CATEGORIES.find(c => c.id === category);
   const avg = stats.total > 0 ? Math.round(stats.sum / stats.total) : null;
- 
+
   async function startQuiz(cat) {
     setCategory(cat);
     setScreen("quiz");
@@ -201,14 +215,14 @@ export default function ShogiTrainer() {
     }
     setLoading(false);
   }
- 
+
   async function submitAnswer() {
     if (!userAnswer.trim() || loading) return;
     setLoading(true);
     setErr(null);
     try {
       const fb = await callClaude(
-        [{ role: "user", content: makeFeedbackPrompt(question.q, userAnswer, question.ans) }],
+        [{ role: "user", content: makeFeedbackPrompt(question.q, userAnswer, question.ans, question.keywords, character?.name) }],
         character
       );
       setFeedback(fb);
@@ -219,14 +233,14 @@ export default function ShogiTrainer() {
     }
     setLoading(false);
   }
- 
+
   // ── ホーム ──
   if (screen === "home") return (
     <Shell avg={avg} total={stats.total}>
       <div style={s.section}>
         <div style={s.heroLabel}>大局観トレーニング</div>
         <h1 style={s.heroTitle}>考える将棋を<br/>身につける</h1>
- 
+
         {/* 設定バー */}
         <div style={s.settingsBar}>
           <div style={s.settingGroup}>
@@ -246,7 +260,7 @@ export default function ShogiTrainer() {
             </select>
           </div>
         </div>
- 
+
         {/* カテゴリ */}
         <div style={s.catList}>
           {CATEGORIES.map(c => (
@@ -264,7 +278,7 @@ export default function ShogiTrainer() {
       </div>
     </Shell>
   );
- 
+
   // ── 問題 ──
   if (screen === "quiz") return (
     <Shell avg={avg} total={stats.total}>
@@ -274,27 +288,27 @@ export default function ShogiTrainer() {
           <div style={{ ...s.badge, background: catObj?.color }}>{catObj?.icon} {catObj?.label}</div>
           <div style={{ ...s.diffPill, background: diffColor[difficulty] }}>{difficulty}</div>
         </div>
- 
+
         {loading && !question && <Spinner />}
         {err && <p style={s.errText}>{err}</p>}
- 
+
         {question && !err && <>
           <div style={s.qBox}>
             <p style={s.qLabel}>問題</p>
             <p style={s.qText}>{question.q}</p>
           </div>
- 
+
           {!showHint
             ? <button style={s.hintBtn} onClick={() => setShowHint(true)}>💡 ヒントを見る</button>
             : <div style={s.hintBox}>💡 {question.hint}</div>
           }
- 
+
           <textarea style={s.textarea} rows={3}
             value={userAnswer}
             onChange={e => setUserAnswer(e.target.value)}
             placeholder="答えや考え方を書く…"
           />
- 
+
           <div style={s.btnRow}>
             <button style={s.ghostBtn} onClick={() => setScreen("home")}>← 戻る</button>
             <button
@@ -304,7 +318,7 @@ export default function ShogiTrainer() {
               {loading ? "採点中…" : "解答する →"}
             </button>
           </div>
- 
+
           <div style={{ textAlign: "center" }}>
             {!revealAns
               ? <button style={s.revealBtn} onClick={() => setRevealAns(true)}>模範解答だけ見る</button>
@@ -318,7 +332,7 @@ export default function ShogiTrainer() {
       </div>
     </Shell>
   );
- 
+
   // ── 結果 ──
   if (screen === "result" && feedback) return (
     <Shell avg={avg} total={stats.total}>
@@ -328,7 +342,7 @@ export default function ShogiTrainer() {
           <div style={{ ...s.badge, background: catObj?.color }}>{catObj?.icon} {catObj?.label}</div>
           <div style={{ ...s.diffPill, background: diffColor[difficulty] }}>{difficulty}</div>
         </div>
- 
+
         <div style={s.scoreLine}>
           <span style={{
             ...s.scoreNum,
@@ -337,11 +351,11 @@ export default function ShogiTrainer() {
           <span style={s.scoreUnit}>点</span>
           <span style={s.scoreMsg}>{feedback.msg}</span>
         </div>
- 
+
         <FeedRow tag="✓ 良い点"    color="#27ae60" text={feedback.good} />
         <FeedRow tag="△ 改善"      color="#e67e22" text={feedback.fix} />
         <ModelAnswer model={feedback.model} />
- 
+
         <div style={s.btnRow}>
           <button style={s.ghostBtn} onClick={() => setScreen("home")}>← カテゴリへ</button>
           <button style={s.redBtn} onClick={() => startQuiz(category)}>次の問題 →</button>
@@ -349,12 +363,12 @@ export default function ShogiTrainer() {
       </div>
     </Shell>
   );
- 
+
   return null;
 }
- 
+
 // ── サブコンポーネント ─────────────────────────────────────────────────────────
- 
+
 function CharacterBadge({ character }) {
   return (
     <div style={{ ...s.charBadge, borderColor: character.accent }}>
@@ -367,7 +381,7 @@ function CharacterBadge({ character }) {
     </div>
   );
 }
- 
+
 function Shell({ children, avg, total }) {
   return (
     <div style={s.root}>
@@ -380,7 +394,7 @@ function Shell({ children, avg, total }) {
     </div>
   );
 }
- 
+
 function Spinner() {
   return (
     <div style={s.spinWrap}>
@@ -389,7 +403,7 @@ function Spinner() {
     </div>
   );
 }
- 
+
 function ModelAnswer({ model }) {
   if (!model) return null;
   // 文字列で返ってきた場合のフォールバック
@@ -424,7 +438,7 @@ function ModelAnswer({ model }) {
     </div>
   );
 }
- 
+
 function FeedRow({ tag, color, text }) {
   return (
     <div style={s.feedRow}>
@@ -433,9 +447,9 @@ function FeedRow({ tag, color, text }) {
     </div>
   );
 }
- 
+
 // ── スタイル ──────────────────────────────────────────────────────────────────
- 
+
 const s = {
   root: {
     minHeight: "100vh", background: "#0e0e0e", color: "#f0e6d3",
@@ -460,11 +474,11 @@ const s = {
   logo: { fontSize: 18, fontWeight: 700, letterSpacing: "0.18em", color: "#c0392b" },
   statChip: { fontSize: 12, color: "#aaa", background: "rgba(255,255,255,0.06)", padding: "3px 12px", borderRadius: 20 },
   main: { position: "relative", zIndex: 10, maxWidth: 640, margin: "0 auto", padding: "24px 16px 60px" },
- 
+
   section: { display: "flex", flexDirection: "column", gap: 20 },
   heroLabel: { fontSize: 11, letterSpacing: "0.3em", color: "#c0392b", textAlign: "center", paddingTop: 8 },
   heroTitle: { fontSize: 28, fontWeight: 700, lineHeight: 1.35, textAlign: "center", margin: 0 },
- 
+
   settingsBar: {
     background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)",
     borderRadius: 12, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 12,
@@ -482,7 +496,7 @@ const s = {
     borderRadius: 8, color: "#f0e6d3", fontSize: 13, padding: "4px 10px",
     fontFamily: "'Noto Serif JP','Georgia',serif",
   },
- 
+
   catList: { display: "flex", flexDirection: "column", gap: 8 },
   catRow: {
     display: "flex", alignItems: "center", gap: 12,
@@ -494,7 +508,7 @@ const s = {
   catRowText: { flex: 1 },
   catRowName: { fontSize: 14, fontWeight: 600, color: "#f0e6d3", letterSpacing: "0.05em" },
   catRowDesc: { fontSize: 11, color: "#888", marginTop: 2 },
- 
+
   quizCard: {
     background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
     borderRadius: 14, padding: "22px 20px", display: "flex", flexDirection: "column", gap: 14,
@@ -502,14 +516,14 @@ const s = {
   quizTop: { display: "flex", alignItems: "center", gap: 8 },
   badge: { fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", padding: "3px 10px", borderRadius: 20, color: "#fff" },
   diffPill: { fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, color: "#fff" },
- 
+
   qBox: {
     background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
     borderRadius: 9, padding: "14px 16px",
   },
   qLabel: { fontSize: 10, letterSpacing: "0.25em", color: "#c0392b", margin: "0 0 7px" },
   qText: { fontSize: 14, lineHeight: 1.75, color: "#f0e6d3", margin: 0 },
- 
+
   hintBtn: {
     alignSelf: "flex-start", background: "transparent",
     border: "1px dashed rgba(255,255,255,0.2)", color: "#999",
@@ -519,14 +533,14 @@ const s = {
     background: "rgba(255,220,0,0.07)", border: "1px solid rgba(255,220,0,0.18)",
     borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#f0e6d3", lineHeight: 1.65,
   },
- 
+
   textarea: {
     background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.14)",
     borderRadius: 9, padding: "11px 13px",
     color: "#f0e6d3", fontSize: 14, lineHeight: 1.65, resize: "vertical",
     fontFamily: "'Noto Serif JP','Georgia',serif", outline: "none",
   },
- 
+
   btnRow: { display: "flex", gap: 8, justifyContent: "space-between" },
   ghostBtn: {
     background: "transparent", border: "1px solid rgba(255,255,255,0.14)",
@@ -545,12 +559,12 @@ const s = {
     background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)",
     borderRadius: 8, padding: "12px 14px", fontSize: 13, color: "#ccc", lineHeight: 1.7, textAlign: "left",
   },
- 
+
   scoreLine: { display: "flex", alignItems: "baseline", gap: 6, padding: "8px 0" },
   scoreNum: { fontSize: 48, fontWeight: 700, lineHeight: 1 },
   scoreUnit: { fontSize: 16, color: "#888" },
   scoreMsg: { fontSize: 14, color: "#f0e6d3", marginLeft: 8 },
- 
+
   feedRow: {
     background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
     borderRadius: 9, padding: "12px 14px",
@@ -560,7 +574,7 @@ const s = {
     padding: "2px 9px", borderRadius: 10, marginBottom: 7, letterSpacing: "0.05em",
   },
   feedText: { fontSize: 13, color: "#ddd", lineHeight: 1.7, margin: 0 },
- 
+
   modelBox: {
     background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
     borderRadius: 9, padding: "12px 14px",
@@ -571,7 +585,7 @@ const s = {
   modelRight: { display: "flex", flexDirection: "column", gap: 2 },
   modelLabel: { fontSize: 10, color: "#888", letterSpacing: "0.1em" },
   modelValue: { fontSize: 13, color: "#f0e6d3", lineHeight: 1.65 },
- 
+
   spinWrap: { display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "36px 0" },
   spinner: {
     width: 32, height: 32, borderRadius: "50%",
@@ -580,7 +594,7 @@ const s = {
   },
   spinText: { color: "#888", fontSize: 13, letterSpacing: "0.1em" },
   errText: { color: "#c0392b", fontSize: 13, textAlign: "center" },
- 
+
   charBadge: {
     display: "flex", alignItems: "center", gap: 10,
     background: "rgba(255,255,255,0.05)", border: "1px solid",
@@ -596,7 +610,7 @@ const s = {
   charRole: { fontSize: 10, color: "#888", letterSpacing: "0.08em" },
   charLabel: { fontSize: 11, color: "#666", letterSpacing: "0.05em" },
 };
- 
+
 if (typeof document !== "undefined") {
   const el = document.createElement("style");
   el.textContent = `@keyframes spin{to{transform:rotate(360deg)}}`;
