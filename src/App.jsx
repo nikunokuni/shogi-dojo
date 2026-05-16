@@ -83,33 +83,37 @@ const diffColor = { 初級: "#27ae60", 中級: "#e67e22", 上級: "#c0392b" };
 // ─── プロンプト ──────────────────────────────────────────────────────────────
 
 function makeSystem(character) {
-  const charPrompt = character ? `\n\n【キャラクター設定】\n${character.personality}\nこのキャラクターとして出題・採点してください。` : "";
-  return `あなたは将棋の指導者です。大局観トレーニングの問題を出題・採点します。${charPrompt}
+  const charPrompt = character ? `\n\n【キャラクター設定】\n${character.personality}\nこのキャラクターとして出題・フィードバックしてください。` : "";
+  return `あなたは将棋の指導者です。大局観トレーニングの問題を出題・フィードバックします。${charPrompt}
 
 【絶対ルール】
 - 具体的な盤面・手順は扱わない。考え方・原則・格言を問う
 - 問題文は2〜3文以内（短くテンポよく）
-- 格言は「歩のない将棋は負け将棋」「玉の近くに金を打つな」「と金の遠打ち」「攻めは飛角銀桂」など、将棋ファンに広く知られた格言を優先する
+- 格言は渡されたリストの中からのみ出題すること
 - 回答はJSONのみ。前置きやMarkdownコードブロック不要
 
-【出題JSON形式】
-{"type":"q","q":"問題文（短く）","hint":"ヒント一言","ans":"模範解答（1〜3文）","exp":"解説（2〜4文）","diff":"初級/中級/上級","keywords":["採点キーワード1","採点キーワード2"]}
+【出題形式について】
+出題タイプはランダムで以下のどちらかを選ぶこと：
+- 通常形式：状況を説明して「この場面に当てはまる格言・手筋は？」と問う
+- 逆引き形式：格言名を先に提示して「この格言はどんな状況で使う？どんな意味がある？」と問う
 
-【採点ルーブリック】
-以下の基準で採点し、合計をbaseScoreとする：
-- 格言名・結論が正確に言えている：40点
-- 理由・考え方の方向性が合っている：30点
-- キーワードが含まれている（渡されたkeywordsを参照）：20点
-- 応用や補足まで言えている：10点
+【難易度別の出題方法】
+- 初級：4択問題。正解1つ＋ダミー3つを用意する
+- 中級・上級：自由記述問題
 
-キャラクター補正：
-- ツルギの場合：baseScoreから10点引く（厳格・丁寧に不足を指摘）
-- イロハの場合：baseScoreに10点足す（甘め・方向性重視、上限100）
-- カエデの場合：baseScoreそのまま（一緒に確認する姿勢）
+【出題JSON形式（初級・4択）】
+{"type":"q","format":"4択","q":"問題文","hint":"ヒント一言","ans":"正解の選択肢テキスト","exp":"解説（2〜4文）","diff":"初級","keywords":["キーワード1"],"choices":["正解テキスト","ダミー1","ダミー2","ダミー3"]}
 
-【採点JSON形式】
-{"type":"fb","score":0〜100,"good":"良い点（1文）","fix":"改善点（1文）","model":{"ans":"解答（格言名・結論を一言で）","focus":"盤面・局面で注目すべきポイント（1文）","aim":"この考え方の後の狙い・目的（1文）","tip":"覚え方・応用のコツ（1文）"},"msg":"一言励まし"}`;
+【出題JSON形式（中級・上級・自由記述）】
+{"type":"q","format":"記述","q":"問題文","hint":"ヒント一言","ans":"模範解答（1〜3文）","exp":"解説（2〜4文）","diff":"中級or上級","keywords":["キーワード1","キーワード2"]}
+
+【フィードバックJSON形式（初級・4択）】
+{"type":"fb","correct":true/false,"model":{"ans":"正解","exp":"解説"},"msg":"一言コメント（キャラ口調で）"}
+
+【フィードバックJSON形式（中級・上級・記述）】
+{"type":"fb","good":"良い点（1文・キャラ口調）","fix":"改善点（1文・キャラ口調）","model":{"ans":"解答（格言名・結論）","focus":"注目すべきポイント","aim":"後の狙い・目的","tip":"覚え方・応用のコツ"},"msg":"一言励まし（キャラ口調）"}`;
 }
+
 
 function makeQuestionPrompt({ category, difficulty, strategy, usedAnswers }) {
   const catLabel = CATEGORIES.find(c => c.id === category)?.label;
@@ -131,11 +135,15 @@ function makeQuestionPrompt({ category, difficulty, strategy, usedAnswers }) {
 JSONのみ返してください。`;
 }
 
-function makeFeedbackPrompt(question, userAnswer, modelAnswer, keywords, characterName) {
-  const kwText = keywords?.length ? `\n採点キーワード（含まれていたら加点）：${keywords.join("、")}` : "";
-  const charText = characterName ? `\nあなたは${characterName}として採点してください。` : "";
-  return `問題：${question}\n参考解答：${modelAnswer}\nユーザー回答：${userAnswer}${kwText}${charText}\n\n採点ルーブリックに従って採点してください。model欄は必ずオブジェクト形式（ans/focus/aim/tip）で返してください。JSONのみ返してください。`;
+function makeFeedbackPrompt(question, userAnswer, modelAnswer, keywords, characterName, format) {
+  const kwText = keywords?.length ? `\n採点キーワード：${keywords.join("、")}` : "";
+  const charText = characterName ? `\nあなたは${characterName}として回答してください。` : "";
+  if (format === "4択") {
+    return `問題：${question}\n正解：${modelAnswer}\nユーザーの選択：${userAnswer}${charText}\n\n正誤判定してフィードバックJSONを返してください。JSONのみ。`;
+  }
+  return `問題：${question}\n模範解答：${modelAnswer}\nユーザー回答：${userAnswer}${kwText}${charText}\n\n記述フィードバックJSONを返してください。点数は不要です。model欄はオブジェクト形式（ans/focus/aim/tip）で。JSONのみ。`;
 }
+
 
 // ─── API ─────────────────────────────────────────────────────────────────────
 
@@ -181,13 +189,13 @@ export default function ShogiTrainer() {
   const [loading, setLoading] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [revealAns, setRevealAns] = useState(false);
-  const [stats, setStats] = useState({ total: 0, sum: 0 });
+  const [stats, setStats] = useState({ total: 0 });
   const [err, setErr] = useState(null);
   const [usedAnswers, setUsedAnswers] = useState({});
   const [character, setCharacter] = useState(null);
 
   const catObj = CATEGORIES.find(c => c.id === category);
-  const avg = stats.total > 0 ? Math.round(stats.sum / stats.total) : null;
+
 
   async function startQuiz(cat) {
     setCategory(cat);
@@ -226,11 +234,11 @@ export default function ShogiTrainer() {
     setErr(null);
     try {
       const fb = await callClaude(
-        [{ role: "user", content: makeFeedbackPrompt(question.q, userAnswer, question.ans, question.keywords, character?.name) }],
+        [{ role: "user", content: makeFeedbackPrompt(question.q, userAnswer, question.ans, question.keywords, character?.name, question.format) }],
         character
       );
       setFeedback(fb);
-      setStats(s => ({ total: s.total + 1, sum: s.sum + (fb.score || 0) }));
+      setStats(s => ({ total: s.total + 1 }));
       setScreen("result");
     } catch(e) {
       setErr("採点に失敗しました。");
@@ -240,7 +248,7 @@ export default function ShogiTrainer() {
 
   // ── ホーム ──
   if (screen === "home") return (
-    <Shell avg={avg} total={stats.total}>
+    <Shell total={stats.total}>
       <div style={s.section}>
         <div style={s.heroLabel}>大局観トレーニング</div>
         <h1 style={s.heroTitle}>考える将棋を<br/>身につける</h1>
@@ -285,7 +293,7 @@ export default function ShogiTrainer() {
 
   // ── 問題 ──
   if (screen === "quiz") return (
-    <Shell avg={avg} total={stats.total}>
+    <Shell total={stats.total}>
       <div style={s.quizCard}>
         {character && <CharacterBadge character={character} />}
         <div style={s.quizTop}>
@@ -307,11 +315,22 @@ export default function ShogiTrainer() {
             : <div style={s.hintBox}>💡 {question.hint}</div>
           }
 
-          <textarea style={s.textarea} rows={3}
-            value={userAnswer}
-            onChange={e => setUserAnswer(e.target.value)}
-            placeholder="答えや考え方を書く…"
-          />
+          {question.format === "4択"
+            ? <div style={s.choicesGrid}>
+                {(question.choices || []).map((c, i) => (
+                  <button key={i}
+                    style={{ ...s.choiceBtn, ...(userAnswer === c ? { borderColor: "#c0392b", background: "rgba(192,57,43,0.15)" } : {}) }}
+                    onClick={() => setUserAnswer(c)}>
+                    {c}
+                  </button>
+                ))}
+              </div>
+            : <textarea style={s.textarea} rows={3}
+                value={userAnswer}
+                onChange={e => setUserAnswer(e.target.value)}
+                placeholder="答えや考え方を書く…"
+              />
+          }
 
           <div style={s.btnRow}>
             <button style={s.ghostBtn} onClick={() => setScreen("home")}>← 戻る</button>
@@ -319,7 +338,7 @@ export default function ShogiTrainer() {
               style={{ ...s.redBtn, opacity: userAnswer.trim() && !loading ? 1 : 0.45 }}
               onClick={submitAnswer}
               disabled={!userAnswer.trim() || loading}>
-              {loading ? "採点中…" : "解答する →"}
+              {loading ? "フィードバック中…" : "解答する →"}
             </button>
           </div>
 
@@ -339,7 +358,7 @@ export default function ShogiTrainer() {
 
   // ── 結果 ──
   if (screen === "result" && feedback) return (
-    <Shell avg={avg} total={stats.total}>
+    <Shell total={stats.total}>
       <div style={s.quizCard}>
         {character && <CharacterBadge character={character} />}
         <div style={s.quizTop}>
@@ -347,17 +366,26 @@ export default function ShogiTrainer() {
           <div style={{ ...s.diffPill, background: diffColor[difficulty] }}>{difficulty}</div>
         </div>
 
-        <div style={s.scoreLine}>
-          <span style={{
-            ...s.scoreNum,
-            color: feedback.score >= 80 ? "#27ae60" : feedback.score >= 50 ? "#e67e22" : "#c0392b"
-          }}>{feedback.score}</span>
-          <span style={s.scoreUnit}>点</span>
-          <span style={s.scoreMsg}>{feedback.msg}</span>
-        </div>
+        {/* 4択：正誤表示 */}
+        {question?.format === "4択"
+          ? <div style={{ ...s.correctBanner, background: feedback.correct ? "rgba(39,174,96,0.15)" : "rgba(192,57,43,0.15)", borderColor: feedback.correct ? "#27ae60" : "#c0392b" }}>
+              <span style={{ fontSize: 28 }}>{feedback.correct ? "⭕" : "❌"}</span>
+              <span style={{ fontSize: 15, color: feedback.correct ? "#27ae60" : "#c0392b", fontWeight: 700 }}>
+                {feedback.correct ? "正解！" : "不正解"}
+              </span>
+            </div>
+          : null
+        }
 
-        <FeedRow tag="✓ 良い点"    color="#27ae60" text={feedback.good} />
-        <FeedRow tag="△ 改善"      color="#e67e22" text={feedback.fix} />
+        {/* 一言コメント */}
+        <p style={s.scoreMsg}>{feedback.msg}</p>
+
+        {/* 記述：詳細フィードバック */}
+        {question?.format !== "4択" && <>
+          <FeedRow tag="✓ 良い点"  color="#27ae60" text={feedback.good} />
+          <FeedRow tag="△ 改善"    color="#e67e22" text={feedback.fix} />
+        </>}
+
         <ModelAnswer model={feedback.model} />
 
         <div style={s.btnRow}>
@@ -386,13 +414,13 @@ function CharacterBadge({ character }) {
   );
 }
 
-function Shell({ children, avg, total }) {
+function Shell({ children, total }) {
   return (
     <div style={s.root}>
       <div style={s.bgGrid} />
       <header style={s.header}>
         <span style={s.logo}>将棋道場</span>
-        {total > 0 && <span style={s.statChip}>平均 <b>{avg}点</b>（{total}問）</span>}
+        {total > 0 && <span style={s.statChip}>📚 {total}問チャレンジ済み</span>}
       </header>
       <main style={s.main}>{children}</main>
     </div>
@@ -598,6 +626,18 @@ const s = {
   },
   spinText: { color: "#888", fontSize: 13, letterSpacing: "0.1em" },
   errText: { color: "#c0392b", fontSize: 13, textAlign: "center" },
+
+  choicesGrid: { display: "flex", flexDirection: "column", gap: 8 },
+  choiceBtn: {
+    background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)",
+    borderRadius: 9, padding: "11px 14px", color: "#f0e6d3", fontSize: 14,
+    textAlign: "left", cursor: "pointer", lineHeight: 1.5, transition: "all 0.15s",
+  },
+  correctBanner: {
+    display: "flex", alignItems: "center", gap: 12,
+    border: "1px solid", borderRadius: 10, padding: "14px 18px",
+  },
+  scoreMsg: { fontSize: 15, color: "#f0e6d3", textAlign: "center", letterSpacing: "0.05em", padding: "4px 0" },
 
   charBadge: {
     display: "flex", alignItems: "center", gap: 10,
