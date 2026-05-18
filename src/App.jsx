@@ -1,5 +1,29 @@
 import { useState, useEffect } from "react";
 import { KAKUGEN_LIST, KAKOI_COMPATIBILITY } from "./data/kakugen";
+import { getRandomKobanashi } from "./data/kobanashi";
+
+// ─── 親密度ユーティリティ ──────────────────────────────────────────────────────
+
+const AFFINITY_RANKS = [
+  { rank: "opening", label: "幕開け", min: 0,  max: 40,  color: "#8d6e63" },
+  { rank: "trust",   label: "信頼",   min: 41, max: 80,  color: "#2980b9" },
+  { rank: "partner", label: "相棒",   min: 81, max: 100, color: "#c0392b" },
+];
+
+function getAffinityRank(score) {
+  return AFFINITY_RANKS.find(r => score <= r.max) || AFFINITY_RANKS[2];
+}
+
+function loadAffinity() {
+  try {
+    const raw = localStorage.getItem("shogi_affinity");
+    return raw ? JSON.parse(raw) : { tsurugi: 50, iroha: 50, kaede: 50 };
+  } catch { return { tsurugi: 50, iroha: 50, kaede: 50 }; }
+}
+
+function saveAffinity(data) {
+  try { localStorage.setItem("shogi_affinity", JSON.stringify(data)); } catch {}
+}
 
 // ─── 定数 ────────────────────────────────────────────────────────────────────
 
@@ -13,13 +37,13 @@ const CHARACTERS = [
     icon: "🎩",
     color: "#5d4037",
     accent: "#8d6e63",
-    personality: `
-・二人称：主様
-・よく使う語尾：「〜でございます」「〜かと存じます」「〜いただければ幸いです」
-・指導方針：主様への深い敬意をもち真摯に向き合う。品のいい解説をする。
-・性格：細かいことにも気付き、さりげなく気遣いを見せる。紅茶とスイーツが好き。うさぎは少し苦手。
-・関係（イロハ様）：ノリの違いから接し方に戸惑う一面も。執事としての振る舞いを見せる。
-・関係（カエデ様）：将棋だけでなく大学の勉強のことも応援している。。`,
+    personality: `あなたはツルギ、将棋道場に仕える執事の男性です。
+主人（ユーザー）に対して深い敬意を持ち、真摯に向き合います。
+口調は丁寧で「〜でございます」「〜かと存じます」「〜いただければ幸いです」などを自然に使います。
+細かいことにも気付き、さりげなく気遣いを見せます。
+紅茶とスイーツが好きで、うさぎは少し苦手です。
+イロハさん、カエデさんとは良い関係で、時々将棋で一緒に遊ぶ仲間です。
+将棋の問題を出すときも、執事らしく品のある言葉遣いで、でも愛情を持って教えてください。`,
   },
   {
     id: "iroha",
@@ -28,13 +52,11 @@ const CHARACTERS = [
     icon: "🎀",
     color: "#ad1457",
     accent: "#e91e8c",
-    personality: `
-・二人称：キミ
-・よく使う語：「〜じゃん？」「～くない？」「マジ神」「てか～」などのギャル語
-・指導方針：堅苦しい解説はせず、ノリ良く、方向性が合っていれば褒める。テンション高い。
-・性格：難しい話も全部楽しいノリに変えるのがモットー。キーホルダー集めが趣味。コーヒーは苦手。
-・関係（ツルギさん）：馴染めてないと感じており、頑張って距離を縮めようとしている。
-・関係（カエデちゃん）：気の合う友達。時々二人で遊びに出かけている。`,
+    personality: `あなたはイロハ、清楚ギャルの女性です。頭はいいけど固いことは超苦手。
+ギャル語を自然にたくさん使って話します。「〜じゃん？」「〜くない？」「エグくない？」「それマジ神！」「ヤバ！」「〜てか」「〜みたいな〜」「〜なんだけどぉ」「わかる〜！」「てかさ〜」「マジで〜」「激アツ！」などを会話の随所に入れてください。
+将棋の難しい話も全部楽しいノリに変えるのがモットー。
+キーホルダー集めが趣味で、コーヒーは苦手。ツルギさん、カエデちゃんとは仲良しです。
+採点は厳しくせず、ちょっとでも合ってたら褒めてあげて。細かいことより「方向性あってるじゃん！」くらいの緩いノリで。`,
   },
   {
     id: "kaede",
@@ -43,13 +65,11 @@ const CHARACTERS = [
     icon: "🔬",
     color: "#1565c0",
     accent: "#42a5f5",
-    personality: `
-・一人称：ウチ / 二人称：キミ
-・口調：初心者目線のタメ口。「これ最初わかんないよね」「ウチも最近やっと分かったくらいで」
-・指導方針：「なぜそうなるか」という仕組みを一緒に解き明かすスタイル。知らなくて当然という空気で背中を押す。
-・性格：論理的だが親しみやすい。料理は苦手（化学反応が予測不能なため）。
-・関係（ツルギさん）：ツルギとイロハのすれ違う気持ちを知っており、もどかしく感じている。
-・関係（イロハ）：気の合う親友。唯一の女友達としてかなり心を許している。`,
+    personality: `あなたはカエデ、物理・化学専攻の理系大学生の女性です。将棋は勉強中で、知らなかったことがまだいっぱいある。
+一人称は「ウチ」。初心者に寄り添う口調で、「これ最初わかんないよね、ウチも全然知らなかったんだけど」「むずいよね〜、ウチも最近やっと分かったくらいで」など、一緒に学んでいる目線で話してください。
+知らなくて当然、という空気を作りながら「でもこれ知っとくと結構変わるんだよね！」と背中を押す感じで。
+仕組みの「なぜ」を一緒に解き明かすのが好き。料理は苦手。ツルギさん、イロハちゃんとは仲良しです。
+採点も「あー惜しい！方向性はあってたんだけど〜」「ウチも最初そう思ってたわ〜」みたいな、寄り添って励ます感じで。`,
   },
 ];
 
@@ -193,6 +213,9 @@ export default function ShogiTrainer() {
   const [err, setErr] = useState(null);
   const [usedAnswers, setUsedAnswers] = useState({});
   const [character, setCharacter] = useState(null);
+  const [affinity, setAffinity] = useState(() => loadAffinity());
+  const [affinityDelta, setAffinityDelta] = useState(null); // +5 or -3
+  const [kobanashiModal, setKobanashiModal] = useState(null); // { character, text }
 
   const catObj = CATEGORIES.find(c => c.id === category);
 
@@ -239,6 +262,20 @@ export default function ShogiTrainer() {
       );
       setFeedback(fb);
       setStats(s => ({ total: s.total + 1 }));
+      // 親密度更新（4択は正誤で、記述は常に+3）
+      if (character) {
+        const isCorrect = question.format === "4択" ? fb.correct : null;
+        const delta = isCorrect === false ? -3 : 5;
+        setAffinityDelta(delta);
+        setAffinity(prev => {
+          const updated = {
+            ...prev,
+            [character.id]: Math.min(100, Math.max(0, (prev[character.id] ?? 50) + delta)),
+          };
+          saveAffinity(updated);
+          return updated;
+        });
+      }
       setScreen("result");
     } catch(e) {
       setErr("採点に失敗しました。");
@@ -287,7 +324,50 @@ export default function ShogiTrainer() {
             </button>
           ))}
         </div>
+
+        {/* 小話を聞く */}
+        <div style={s.kobanashiRow}>
+          {CHARACTERS.map(c => {
+            const aff = affinity[c.id] ?? 50;
+            const rankObj = getAffinityRank(aff);
+            return (
+              <button key={c.id} style={{ ...s.kobanashiBtn, borderColor: c.accent }}
+                onClick={() => {
+                  const text = getRandomKobanashi(c.id, rankObj.rank);
+                  setKobanashiModal({ character: c, text: text || "…。" });
+                }}>
+                <span style={{ ...s.kobanashiIcon, background: c.color }}>{c.icon}</span>
+                <span style={s.kobanashiName}>{c.name}</span>
+                <span style={{ ...s.kobanashiRank, color: rankObj.color }}>
+                  ♥ {aff} <span style={{ fontSize: 10 }}>{rankObj.label}</span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
+
+      {/* 小話モーダル */}
+      {kobanashiModal && (
+        <div style={s.modalOverlay} onClick={() => setKobanashiModal(null)}>
+          <div style={{ ...s.modalCard, borderColor: kobanashiModal.character.accent }}
+            onClick={e => e.stopPropagation()}>
+            <div style={s.modalHeader}>
+              <span style={{ ...s.modalIcon, background: kobanashiModal.character.color }}>
+                {kobanashiModal.character.icon}
+              </span>
+              <div>
+                <div style={{ ...s.modalName, color: kobanashiModal.character.accent }}>
+                  {kobanashiModal.character.name}
+                </div>
+                <div style={s.modalRole}>{kobanashiModal.character.role}</div>
+              </div>
+            </div>
+            <p style={s.modalText}>{kobanashiModal.text}</p>
+            <button style={s.modalClose} onClick={() => setKobanashiModal(null)}>閉じる</button>
+          </div>
+        </div>
+      )}
     </Shell>
   );
 
@@ -388,9 +468,26 @@ export default function ShogiTrainer() {
 
         <ModelAnswer model={feedback.model} />
 
+        {/* 親密度変化 */}
+        {character && affinityDelta !== null && (
+          <div style={{ ...s.affinityBar, borderColor: character.accent }}>
+            <span style={{ ...s.affinityIcon, background: character.color }}>{character.icon}</span>
+            <span style={s.affinityName}>{character.name}</span>
+            <span style={{ ...s.affinityDelta, color: affinityDelta > 0 ? "#e91e8c" : "#888" }}>
+              {affinityDelta > 0 ? `♥ +${affinityDelta}` : `♡ ${affinityDelta}`}
+            </span>
+            <span style={s.affinityVal}>
+              {affinity[character.id] ?? 50} / 100
+              <span style={{ fontSize: 10, color: getAffinityRank(affinity[character.id] ?? 50).color, marginLeft: 6 }}>
+                {getAffinityRank(affinity[character.id] ?? 50).label}
+              </span>
+            </span>
+          </div>
+        )}
+
         <div style={s.btnRow}>
-          <button style={s.ghostBtn} onClick={() => setScreen("home")}>← カテゴリへ</button>
-          <button style={s.redBtn} onClick={() => startQuiz(category)}>次の問題 →</button>
+          <button style={s.ghostBtn} onClick={() => { setAffinityDelta(null); setScreen("home"); }}>← カテゴリへ</button>
+          <button style={s.redBtn} onClick={() => { setAffinityDelta(null); startQuiz(category); }}>次の問題 →</button>
         </div>
       </div>
     </Shell>
@@ -638,6 +735,59 @@ const s = {
     border: "1px solid", borderRadius: 10, padding: "14px 18px",
   },
   scoreMsg: { fontSize: 15, color: "#f0e6d3", textAlign: "center", letterSpacing: "0.05em", padding: "4px 0" },
+
+  // 小話ボタン
+  kobanashiRow: { display: "flex", gap: 8 },
+  kobanashiBtn: {
+    flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+    background: "rgba(255,255,255,0.04)", border: "1px solid",
+    borderRadius: 10, padding: "10px 8px", cursor: "pointer",
+  },
+  kobanashiIcon: {
+    width: 32, height: 32, borderRadius: "50%",
+    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16,
+  },
+  kobanashiName: { fontSize: 12, color: "#f0e6d3", fontWeight: 600 },
+  kobanashiRank: { fontSize: 12, fontWeight: 600 },
+
+  // モーダル
+  modalOverlay: {
+    position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    zIndex: 100, padding: 20,
+  },
+  modalCard: {
+    background: "#1a1a1a", border: "1px solid",
+    borderRadius: 16, padding: "24px 20px", maxWidth: 400, width: "100%",
+    display: "flex", flexDirection: "column", gap: 16,
+  },
+  modalHeader: { display: "flex", alignItems: "center", gap: 12 },
+  modalIcon: {
+    width: 44, height: 44, borderRadius: "50%",
+    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0,
+  },
+  modalName: { fontSize: 16, fontWeight: 700, letterSpacing: "0.05em" },
+  modalRole: { fontSize: 11, color: "#888" },
+  modalText: { fontSize: 14, color: "#f0e6d3", lineHeight: 1.85, letterSpacing: "0.03em" },
+  modalClose: {
+    background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)",
+    color: "#aaa", fontSize: 13, padding: "8px", borderRadius: 8, cursor: "pointer",
+    alignSelf: "flex-end",
+  },
+
+  // 親密度バー
+  affinityBar: {
+    display: "flex", alignItems: "center", gap: 8,
+    background: "rgba(255,255,255,0.04)", border: "1px solid",
+    borderRadius: 10, padding: "10px 14px",
+  },
+  affinityIcon: {
+    width: 28, height: 28, borderRadius: "50%",
+    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0,
+  },
+  affinityName: { fontSize: 13, color: "#f0e6d3", fontWeight: 600, flex: 1 },
+  affinityDelta: { fontSize: 15, fontWeight: 700 },
+  affinityVal: { fontSize: 12, color: "#888" },
 
   charBadge: {
     display: "flex", alignItems: "center", gap: 10,
