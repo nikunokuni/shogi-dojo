@@ -2,47 +2,87 @@
 // 出典：将棋の定説として広く知られているもののみ収録
 
 export const KAKUGEN_LIST = [
-  // ── 歩に関する格言 ──
-  { text: "歩のない将棋は負け将棋", category: "歩", level: "初級" },
-  { text: "歩は将棋の命", category: "歩", level: "初級" },
-  { text: "と金の遠打ち", category: "歩", level: "中級" },
-  { text: "継ぎ歩に垂れ歩", category: "歩", level: "中級" },
-  { text: "垂れ歩の手筋", category: "歩", level: "中級" },
-  { text: "たたきの歩", category: "歩", level: "中級" },
+ // 歩
+{ text: "歩のない将棋は負け将棋", category: "歩", level: "初級" },
+{ text: "手のない時は端歩を突け", category: "歩", level: "初級" },
+{ text: "開戦は歩の突き捨てから", category: "歩", level: "初級" },
+{ text: "一歩千金", category: "歩", level: "中級" },
+{ text: "二枚替えなら歩ともせよ", category: "歩", level: "中級" },
+{ text: "三歩持ったら継ぎ歩とたれ歩", category: "歩", level: "中級" },
+{ text: "５三のと金に負けなし", category: "歩", level: "中級" },
+{ text: "と金のおそはや", category: "歩", level: "中級" },
+{ text: "まむしのと金", category: "歩", level: "中級" },
+{ text: "焦点の歩に好手あり", category: "歩", level: "中級" },
+{ text: "打ち歩詰めに詰みの余地あり", category: "歩", level: "上級" },
 
-  // ── 玉に関する格言 ──
-  { text: "玉の近くに金を打つな", category: "玉", level: "初級" },
-  { text: "玉は包むように寄せよ", category: "玉", level: "中級" },
-  { text: "玉飛接近すべからず", category: "玉", level: "初級" },
-  { text: "入玉には竜を作れ", category: "玉", level: "上級" },
-  { text: "玉は下段に落とせ", category: "玉", level: "中級" },
+// 玉
+{ text: "王手は追う手", category: "玉", level: "初級" },
+{ text: "玉の早逃げ八手の得", category: "玉", level: "初級" },
+{ text: "居玉はさけよ", category: "玉", level: "初級" },
+{ text: "初王手目の薬", category: "玉", level: "初級" },
+{ text: "玉は敵の角筋を避けよ", category: "玉", level: "初級" },
+{ text: "玉は包むように寄せよ", category: "玉", level: "中級" },
+{ text: "玉は下段に落とせ", category: "玉", level: "中級" },
+{ text: "中段玉は寄せにくし", category: "玉", level: "中級" },
+{ text: "玉の腹から銀を打て", category: "玉", level: "中級" },
+{ text: "端玉には端歩", category: "玉", level: "中級" },
+{ text: "桂頭の玉寄せにくし", category: "玉", level: "上級" },
 
-  // ── 攻めに関する格言 ──
-  { text: "攻めは飛角銀桂", category: "攻め", level: "初級" },
-  { text: "桂馬の高跳び歩の餌食", category: "攻め", level: "初級" },
-  { text: "両取り逃げるべからず", category: "攻め", level: "中級" },
-  { text: "角のない振り飛車は振り飛車にあらず", category: "攻め", level: "中級" },
-  { text: "二枚替えは歩得に匹敵", category: "攻め", level: "中級" },
-  { text: "馬は自陣に引け", category: "攻め", level: "中級" },
-  { text: "竜は敵陣に作れ", category: "攻め", level: "中級" },
+// 攻め
+{ text: "飛車先の歩交換三つの得あり", category: "攻め", level: "初級" },
+{ text: "攻めは飛角銀桂守りは金銀三枚", category: "攻め", level: "初級" },
+{ text: "駒は中央へ向かえ", category: "攻め", level: "初級" },
+{ text: "飛車は十字に使え", category: "攻め", level: "中級" },
+{ text: "角筋は受けにくし", category: "攻め", level: "中級" },
+{ text: "要の金をねらえ", category: "攻め", level: "中級" },
+{ text: "金はとどめに残せ", category: "攻め", level: "中級" },
+{ text: "三桂あって詰まぬ事なし", category: "攻め", level: "中級" },
+{ text: "４枚の攻めは切れない", category: "攻め", level: "中級" },
 
-  // ── 守りに関する格言 ──
-  { text: "金は斜めに引いて守れ", category: "守り", level: "初級" },
-  { text: "受けに銀を使え", category: "守り", level: "初級" },
-  { text: "自陣角は守りの切り札", category: "守り", level: "中級" },
+// 守り
+{ text: "玉飛車接近すべからず", category: "守り", level: "初級" },
+{ text: "金なし将棋に受け手なし", category: "守り", level: "初級" },
+{ text: "攻めは銀、受けは金", category: "守り", level: "初級" },
+{ text: "馬の守りは金銀三枚", category: "守り", level: "中級" },
+{ text: "大駒は近づけて受けよ", category: "守り", level: "中級" },
+{ text: "金底の歩岩より固し", category: "守り", level: "中級" },
+{ text: "金は引く手に好手あり", category: "守り", level: "中級" },
+{ text: "歩越銀には歩で受けよ", category: "守り", level: "中級" },
 
-  // ── 形勢判断に関する格言 ──
-  { text: "駒の損得より速度", category: "形勢", level: "中級" },
-  { text: "飛車より角、角より金、金より銀", category: "形勢", level: "初級" },
-  { text: "終盤は駒の損得より速度", category: "形勢", level: "中級" },
-  { text: "必死は詰めより勝る", category: "形勢", level: "上級" },
+// 形勢
+{ text: "５五の位は天王山", category: "形勢", level: "初級" },
+{ text: "終盤は駒の損得より速度", category: "形勢", level: "中級" },
+{ text: "風邪を引いても後手ひくな", category: "形勢", level: "中級" },
+{ text: "位を取ったら位の確保", category: "形勢", level: "中級" },
+{ text: "長い詰みより短い必死", category: "形勢", level: "上級" },
+{ text: "不利なときは戦線拡大", category: "形勢", level: "上級" },
 
-  // ── 手筋 ──
-  { text: "割り打ちの銀", category: "手筋", level: "中級" },
-  { text: "底歩の手筋", category: "手筋", level: "初級" },
-  { text: "送りの手筋", category: "手筋", level: "中級" },
-  { text: "ひもをつける", category: "手筋", level: "中級" },
-];
+// 手筋
+{ text: "大駒は離して打て", category: "手筋", level: "初級" },
+{ text: "序盤は飛車より角", category: "手筋", level: "初級" },
+{ text: "桂の高跳び歩のえじき", category: "手筋", level: "初級" },
+{ text: "竜は敵陣に馬は自陣に", category: "手筋", level: "中級" },
+{ text: "遠見の角に好手あり", category: "手筋", level: "中級" },
+{ text: "振り飛車には角交換", category: "手筋", level: "中級" },
+{ text: "角の頭は丸い", category: "手筋", level: "中級" },
+{ text: "金はななめに誘え", category: "手筋", level: "中級" },
+{ text: "銀は千鳥に使え", category: "手筋", level: "中級" },
+{ text: "桂頭の銀", category: "手筋", level: "中級" },
+{ text: "桂は控えて打て", category: "手筋", level: "中級" },
+{ text: "香は下段から打て", category: "手筋", level: "中級" },
+{ text: "香を持ったら歩の裏を狙え", category: "手筋", level: "中級" },
+{ text: "寄せは俗手に好手あり", category: "手筋", level: "中級" },
+{ text: "逃げ道に捨て駒", category: "手筋", level: "中級" },
+{ text: "敵の打ちたい所に打て", category: "手筋", level: "中級" },
+{ text: "敵の急所は自分の急所", category: "手筋", level: "中級" },
+{ text: "端に手あり", category: "手筋", level: "中級" },
+{ text: "浮き駒に手あり", category: "手筋", level: "中級" },
+{ text: "両取り逃げるべからず", category: "手筋", level: "中級" },
+{ text: "遊び駒を活用せよ", category: "手筋", level: "中級" },
+{ text: "角換わり将棋に５筋は突くな", category: "手筋", level: "上級" },
+{ text: "内竜は外竜に勝る", category: "手筋", level: "上級" },
+{ text: "一段金に飛車捨てあり", category: "手筋", level: "上級" },
+{ text: "銀は成らずに好手あり", category: "手筋", level: "上級" },
 
 export const KAKOI_COMPATIBILITY = [
   {
