@@ -80,7 +80,7 @@ export function makeQuestionPrompt({ category, difficulty, strategy, usedAnswers
   // tesuji → category:"kakugen" / hatten → category:"keisei" でフィルタ
   const kakugenCategory = category === "tesuji" ? "kakugen" : "keisei";
   const filteredKakugen = kakugenList.filter(
-    k => k.level === difficulty && k.senpou === senpou && k.category === kakugenCategory
+    k => k.level === difficulty && (k.senpou === senpou || k.senpou === "common")  && k.category === kakugenCategory
   );
 
   const categoryGuide = buildCategoryGuide(
