@@ -58,7 +58,7 @@ export const CATEGORIES = [
   { id: "tesuji",  label: "手筋・格言",   icon: "⚔️",  color: "#c0392b", desc: "知っておくべき有名格言・手筋" },
   { id: "hatten",  label: "形勢判断",     icon: "⚖️",  color: "#2980b9", desc: "駒割・玉の安全度・駒効率の基準" },
   { id: "kakoi",   label: "囲い相性",     icon: "🏯",  color: "#8e44ad", desc: "囲いと攻め筋の相性を問う" },
-  
+  ];
 
 // ─── 難易度 ──────────────────────────────────────────────────────────────────
 
