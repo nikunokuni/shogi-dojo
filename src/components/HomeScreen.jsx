@@ -3,6 +3,7 @@ import { CATEGORIES, CHARACTERS, DIFFICULTIES, STRATEGIES, DIFF_COLOR } from "..
 import { getAffinityRank } from "../utils/affinity";
 import { getRandomKobanashi } from "../data/kobanashi";
 import { Shell, KobanashiModal } from "./shared";
+import { STRATEGIES } from '../data/constants'; 
 
 /**
  * ホーム画面
