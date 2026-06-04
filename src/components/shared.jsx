@@ -1,4 +1,4 @@
-import { s } from "../utils/styles";
+import { s } from "../styles.css";
 import { getAffinityRank } from "../utils/affinity";
 
 // ─── シェル（共通レイアウト） ──────────────────────────────────────────────────
