@@ -1,4 +1,4 @@
-import { AFFINITY_RANKS, DEFAULT_AFFINITY, STORAGE_KEY_AFFINITY } from "../constants";
+import { AFFINITY_RANKS, DEFAULT_AFFINITY, STORAGE_KEY_AFFINITY } from "../data/constants";
 
 /**
  * スコアに対応する親密度ランクを返す
