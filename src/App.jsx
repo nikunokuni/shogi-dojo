@@ -9,7 +9,7 @@ import { ResultScreen } from "./components/ResultScreen";
  * このコンポーネントは「どの画面を表示するか」だけを担当する薄いオーケストレーター。
  * ロジックはすべて useQuiz フックに、UI は各 Screen コンポーネントに委譲している。
  */
-export default function ShogiTrainer() {
+export function App ShogiTrainer() {
   const quiz = useQuiz();
 
   if (quiz.screen === "home") {
