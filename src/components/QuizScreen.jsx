@@ -1,4 +1,4 @@
-import { s } from "../utils/styles";
+import { s } from "../styles.css";
 import { CATEGORIES, DIFF_COLOR } from "../data/constants";
 import { Shell, Spinner, CharacterBadge } from "./shared";
 
