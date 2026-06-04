@@ -69,7 +69,7 @@ export const KAKUGEN_LIST = [
   {"text": "角換わり将棋に５筋は突くな", "level": "上級", "senpou": "ibisha", "category": "kakugen", "meaning": "角換わりの定跡において５筋を突くと中央が弱くなるため禁忌とされること。"},
   {"text": "内竜は外竜に勝る", "level": "上級", "senpou": "common", "category": "kakugen", "meaning": "内側にある竜の方が相手玉に近く利きが有効に働くということ。"},
   {"text": "一段金に飛車捨てあり", "level": "上級", "senpou": "common", "category": "kakugen", "meaning": "一段目に張り付いた金に対しては飛車を捨てるような大胆な攻めが詰み筋になること。"},
-  {"text": "銀は成らずに好手あり", "level": "上級", "senpou": "common", "category": "kakugen", "meaning": "銀は成るよりも成らずに元の位置の利きを残す方が効果的な場合があること。"}
+  {"text": "銀は成らずに好手あり", "level": "上級", "senpou": "common", "category": "kakugen", "meaning": "銀は成るよりも成らずに元の位置の利きを残す方が効果的な場合があること。"},
 
 //形成判断
   {"text": "駒の損得を数える", "level": "初級", "senpou": "common", "category": "keisei", "meaning": "まずは単純な駒の交換で損をしない習慣をつける。"},
