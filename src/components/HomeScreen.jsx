@@ -1,5 +1,5 @@
 import { s } from "../styles";
-import { CATEGORIES, CHARACTERS, DIFFICULTIES, STRATEGIES, DIFF_COLOR } from "../constants";
+import { CATEGORIES, CHARACTERS, DIFFICULTIES, STRATEGIES, DIFF_COLOR } from "../data/constants";
 import { getAffinityRank } from "../utils/affinity";
 import { getRandomKobanashi } from "../data/kobanashi";
 import { Shell, KobanashiModal } from "./shared";
