@@ -3,7 +3,7 @@ import { callGemini } from "../api/gemini";
 import { makeQuestionPrompt, makeFeedbackPrompt } from "../api/prompts";
 import { loadAffinity, saveAffinity, applyAffinityDelta, calcAffinityDelta } from "../utils/affinity";
 import { pickCharacter } from "../utils/character";
-import { MAX_USED_ANSWERS, USED_ANSWERS_HISTORY_SIZE } from "../constants";
+import { MAX_USED_ANSWERS, USED_ANSWERS_HISTORY_SIZE } from "../data/constants";
 // NOTE: データは呼び出し元から注入する（テスト容易性のため）
 import { KAKUGEN_LIST, KAKOI_COMPATIBILITY } from "../data/kakugen";
 
