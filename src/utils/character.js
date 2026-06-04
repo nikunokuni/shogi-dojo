@@ -1,4 +1,4 @@
-import { CHARACTERS } from "../constants";
+import { CHARACTERS } from "../data/constants";
 
 /**
  * ランダムにキャラクターを1体選んで返す
