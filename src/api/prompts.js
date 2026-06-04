@@ -1,4 +1,4 @@
-import { CATEGORIES, DIFF_DESC } from "../constants";
+import { CATEGORIES, DIFF_DESC } from "../data/constants";
 // NOTE: KAKUGEN_LIST と KAKOI_COMPATIBILITY は呼び出し元から渡す設計にすることで
 //       このファイルをデータに依存させず、テストしやすくする
 
