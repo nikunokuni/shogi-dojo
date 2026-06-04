@@ -1,4 +1,4 @@
-import { s } from "../styles";
+import { s } from "../utils/styles";
 import { CATEGORIES, CHARACTERS, DIFFICULTIES, STRATEGIES, DIFF_COLOR } from "../data/constants";
 import { getAffinityRank } from "../utils/affinity";
 import { getRandomKobanashi } from "../data/kobanashi";
