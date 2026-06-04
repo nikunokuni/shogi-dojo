@@ -1,7 +1,5 @@
-// 将棋格言・手筋リスト
-// 出典：将棋の定説として広く知られているもののみ収録
-
 export const KAKUGEN_LIST = [
+//手筋・格言
   {"text": "歩のない将棋は負け将棋", "level": "初級", "senpou": "common", "category": "kakugen", "meaning": "手持ちに歩がないと攻めも受けも組み立てが難しくなり窮地に陥りやすいということ。"},
   {"text": "手のない時は端歩を突け", "level": "初級", "senpou": "common", "category": "kakugen", "meaning": "指し手に困ったときは端歩を突いて形に変化を求めるのが有効であること。"},
   {"text": "開戦は歩の突き捨てから", "level": "初級", "senpou": "common", "category": "kakugen", "meaning": "攻めを開始する際はまず歩を突き捨てて相手の陣形を乱すのが定石であること。"},
@@ -72,6 +70,47 @@ export const KAKUGEN_LIST = [
   {"text": "内竜は外竜に勝る", "level": "上級", "senpou": "common", "category": "kakugen", "meaning": "内側にある竜の方が相手玉に近く利きが有効に働くということ。"},
   {"text": "一段金に飛車捨てあり", "level": "上級", "senpou": "common", "category": "kakugen", "meaning": "一段目に張り付いた金に対しては飛車を捨てるような大胆な攻めが詰み筋になること。"},
   {"text": "銀は成らずに好手あり", "level": "上級", "senpou": "common", "category": "kakugen", "meaning": "銀は成るよりも成らずに元の位置の利きを残す方が効果的な場合があること。"}
+
+//形成判断
+  {"text": "駒の損得を数える", "level": "初級", "senpou": "common", "category": "keisei", "meaning": "まずは単純な駒の交換で損をしない習慣をつける。"},
+  {"text": "玉を囲う", "level": "初級", "senpou": "common", "category": "keisei", "meaning": "序盤は玉を安全な場所に囲うことを優先し、防衛力を高める。"},
+  {"text": "取られた駒の利きを見る", "level": "初級", "senpou": "common", "category": "keisei", "meaning": "駒を取られた際、すぐに取り返せるか、あるいは相手の利きを確認する。"},
+  {"text": "王手を見逃さない", "level": "初級", "senpou": "common", "category": "keisei", "meaning": "基本的な王手の筋を確認し、単純な見落としを防ぐ。"},
+  {"text": "攻めと受けの切り替え", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "攻めるべきか守るべきかの判断を、局面の危険度から見極める。"},
+  {"text": "駒の連携（協力関係）", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "単独での攻めを避け、複数の駒が協力して攻める形を作る。"},
+  {"text": "手番を握り続ける感覚", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "自分がやりたい手を指すことで、常に主導権を維持する。"},
+  {"text": "玉の逃げ道を確保する", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "詰まされないために、あらかじめ玉の逃げ道を開けておく。"},
+  {"text": "反撃の筋を読み切る", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "攻める際に、相手からの反撃（特に王手）を計算に入れる。"},
+  {"text": "駒の交換の是非", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "交換した駒が自分と相手、どちらに有効かを判断する。"},
+  {"text": "捌きの感覚", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "動きの鈍い駒を、交換や配置転換でスムーズに動くようにする。"},
+  {"text": "端攻めの活用", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "中央が硬い場合、端を突いて相手の陣形を乱す。"},
+  {"text": "桂馬の跳ねる位置", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "桂馬の利きを最大限に活かせるポイントを見極める。"},
+  {"text": "大局観の俯瞰", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "部分的な得失にとらわれず、全体的な形勢のバランスを見る。"},
+  {"text": "相手の攻めをいなす（受け）", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "無理に受け切るのではなく、相手の攻めを逸らして時間を稼ぐ。"},
+  {"text": "駒の打ち込み場所の特定", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "敵陣の急所（急所の隙）を見つけ、効果的な駒を打つ。"},
+  {"text": "中段玉の活用", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "中盤で玉をあえて中段に繰り出し、安定感を高めるテクニック。"},
+  {"text": "歩越し銀の形", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "歩を一つ越して銀を繰り出し、攻めの圧力を強める。"},
+  {"text": "持ち駒のバランス", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "攻守に必要なバランスを考え、駒の種類を保持する。"},
+  {"text": "好形と悪形の理解", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "自分の陣形が崩れていないか、常にチェックする。"},
+  {"text": "逆転のチャンスを探る", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "不利な局面でも、勝負手を放って相手に難問を突きつける。"},
+  {"text": "一手損の許容範囲", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "一手遅れても回復可能な局面か、致命的かを見極める。"},
+  {"text": "詰めろの解除", "level": "中級", "senpou": "common", "category": "keisei", "meaning": "相手の詰めろを的確に防ぎつつ、自分の攻めを継続する。"},
+  {"text": "最善手の絞り込み", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "候補手を数手まで絞り込み、深く読む。"},
+  {"text": "評価値の背景を読む", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "AIの示す評価値が何を根拠にしているか（攻めか、安定度か）を理解する。"},
+  {"text": "時間管理による心理戦", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "相手の持ち時間を削り、勝負所での精度を狂わせる。"},
+  {"text": "相手の勝ち筋を断つ", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "自分の勝ちを目指す前に、相手の唯一の逆転手を見つけて消す。"},
+  {"text": "局面の複雑化と単純化", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "勝ちたい状況に合わせて、局面を難しくしたり単純化したりする。"},
+  {"text": "必至の定義と精度", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "詰みではなく必至をかけて勝ちを確実にする能力。"},
+  {"text": "攻めのタイムラグ計算", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "自分の攻めが届くまでの手数と、自玉の危険の比率。"},
+  {"text": "柔軟な構想変更", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "序盤の構想が崩れた際、即座に修正する柔軟性。"},
+  {"text": "駒の死活の最終判断", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "盤上の駒が将来的に働くか、完全に死んでいるかを見切る。"},
+  {"text": "心理的なプレッシャー", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "相手が最も指しにくい、正解が一つしかない厳しい手を選択する。"},
+  {"text": "逆転負けを避ける回避術", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "大優勢の局面で、最も逆転されにくい安全な勝ち方を選ぶ。"},
+  {"text": "終盤の速度計算", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "両玉の詰め合いにおいて、どちらが1手早いかを正確に判定する。"},
+  {"text": "駒の配置の美学", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "理想的な連携が取れる位置に駒を導く大局的な構想。"},
+  {"text": "リスク許容度の変動", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "形勢に応じて、どれだけのリスクを負って攻めるかを決定する。"},
+  {"text": "終盤の逆算思考", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "勝ちの結果から逆算して、今の最善手を導き出す。"},
+  {"text": "対局者の気配を読む", "level": "上級", "senpou": "common", "category": "keisei", "meaning": "指し手から相手の自信や焦りを感じ取り、戦略に反映させる。"}
 ]
 
 export const KAKOI_COMPATIBILITY = [
