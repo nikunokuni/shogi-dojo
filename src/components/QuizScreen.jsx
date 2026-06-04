@@ -1,5 +1,5 @@
 import { s } from "../styles";
-import { CATEGORIES, DIFF_COLOR } from "../constants";
+import { CATEGORIES, DIFF_COLOR } from "../data/constants";
 import { Shell, Spinner, CharacterBadge } from "./shared";
 
 /**
