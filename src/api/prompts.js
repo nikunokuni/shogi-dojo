@@ -75,7 +75,7 @@ function buildCategoryGuide(category, difficulty, strategy, kakugenList, kakoiLi
  */
 export function makeQuestionPrompt({ category, difficulty, strategy, usedAnswers, kakugenList, kakoiCompatibility }) {
   const catLabel = CATEGORIES.find(c => c.id === category)?.label ?? category;
-  const senpou = STRATEGY_TO_SENPOU[strategy] ?? "ibisha";
+  const senpou = STRATEGY[strategy] ?? "ibisha";
 
   // tesuji → category:"kakugen" / hatten → category:"keisei" でフィルタ
   const kakugenCategory = category === "tesuji" ? "kakugen" : "keisei";
