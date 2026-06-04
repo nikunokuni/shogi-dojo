@@ -4,8 +4,6 @@ import { QuizScreen }   from "./components/QuizScreen";
 import { ResultScreen } from "./components/ResultScreen";
 
 /**
- * ShogiTrainer
- *
  * このコンポーネントは「どの画面を表示するか」だけを担当する薄いオーケストレーター。
  * ロジックはすべて useQuiz フックに、UI は各 Screen コンポーネントに委譲している。
  */
