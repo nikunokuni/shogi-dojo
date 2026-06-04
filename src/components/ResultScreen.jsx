@@ -1,4 +1,4 @@
-import { s } from "../styles.css";
+import { s } from "../styles";
 import { CATEGORIES, DIFF_COLOR } from "../data/constants";
 import { Shell, CharacterBadge, FeedRow, ModelAnswer, AffinityBar } from "./shared";
 
