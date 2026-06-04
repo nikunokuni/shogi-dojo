@@ -1,5 +1,5 @@
-import { s } from "../styles";
-import { CATEGORIES, DIFF_COLOR } from "../constants";
+import { s } from "../utils/styles";
+import { CATEGORIES, DIFF_COLOR } from "../data/constants";
 import { Shell, CharacterBadge, FeedRow, ModelAnswer, AffinityBar } from "./shared";
 
 /**
