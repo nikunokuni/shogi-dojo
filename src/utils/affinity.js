@@ -40,7 +40,7 @@ export function saveAffinity(data) {
  * @param {number} delta 変化量
  */
 export function applyAffinityDelta(current, characterId, delta) {
-  const prev = current[characterId] ?? DEFAULT_AFFINITY[characterId] ?? 50;
+  const prev = current[characterId] ?? DEFAULT_AFFINITY[characterId] ?? 20;
   return {
     ...current,
     [characterId]: Math.min(100, Math.max(0, prev + delta)),
