@@ -43,43 +43,45 @@ export function makeSystemPrompt(character) {
 
 /**
  * カテゴリ別の出題ガイドを生成する
- * @param {string} category カテゴリ ID
- * @param {string} difficulty 難易度
- * @param {string} strategy 戦法
- * @param {string[]} kakugenList フィルタ済み格言テキストの配列
- * @param {object[]} kakoiCompatibility 囲い相性データ
+ * 変更：tesuji/hatten/kakoiの3カテゴリに対応、格言フィルタをcategoryで分岐
  */
-function buildCategoryGuide(category, difficulty, strategy, kakugenList, kakoiCompatibility) {
-  const strategyPrefix = strategy ? `戦法「${strategy}」を使う側の視点で、` : "";
-
+function buildCategoryGuide(category, difficulty, strategy, kakugenList, kakoiList) {
   const guides = {
-    tesuji: `以下の格言リストの中から難易度「${difficulty}」に合うものを選んで出題すること。格言リスト：${kakugenList.join("、")}。状況を説明して「この場面に当てはまる格言・手筋は？」という形式で問う。`,
-    keisei: "駒割・玉の安全度・手番・駒の効率から形勢を判断する基準を問う問題。",
-    kakoi:  `${strategyPrefix}特定の囲いに対する攻め方の考え方・相性を問う問題。囲いデータ：${JSON.stringify(
-      kakoiCompatibility.map(k => ({ 囲い: k.kakoi, 弱点: k.yowami, 有効な攻め: k.koukana_seme }))
-    )}`,
-    joseki: `${strategy ? `「${strategy}」の定跡を題材に、` : ""}定跡の背景にある「なぜその手を指すのか」の考え方を問う問題。`,
-    dankai: "序盤・中盤・終盤それぞれの段階での考え方の違いや優先事項を問う問題。",
+    tesuji: () => {
+      const list = kakugenList.map(k => k.text);
+      return `以下の格言リストの中から難易度「${difficulty}」に合うものを選んで出題すること。格言リスト：${list.join("、")}。状況を説明して「この場面に当てはまる格言は？」という形式で問う。`;
+    },
+    hatten: () => {
+      const list = kakugenList.map(k => k.text);
+      return `以下の形勢・大局観リストの中から難易度「${difficulty}」に合うものを選んで出題すること。リスト：${list.join("、")}。形勢判断や序中終盤の考え方を問う問題を出すこと。`;
+    },
+    kakoi: () => {
+      const data = kakoiList.map(k => ({
+        囲い: k.name,
+        弱点: k.yowami,
+        有効な攻め: k.koukana_seme,
+      }));
+      const strategyPrefix = strategy ? `戦法「${strategy}」を使う側の視点で、` : "";
+      return `${strategyPrefix}特定の囲いに対する攻め方の考え方・相性を問う問題。囲いデータ：${JSON.stringify(data)}`;
+    },
   };
 
-  return guides[category] ?? "";
+  return guides[category]?.() ?? "";
 }
 
 /**
  * 出題プロンプトを生成する
- * @param {object} params
- * @param {string} params.category カテゴリ ID
- * @param {string} params.difficulty 難易度
- * @param {string} params.strategy 戦法
- * @param {string[]} params.usedAnswers 直近の使用済み解答リスト
- * @param {object[]} params.kakugenList KAKUGEN_LIST（難易度フィルタ前）
- * @param {object[]} params.kakoiCompatibility KAKOI_COMPATIBILITY
+ * 変更：senpouフィルタを追加、categoryフィールドで格言を分類
  */
 export function makeQuestionPrompt({ category, difficulty, strategy, usedAnswers, kakugenList, kakoiCompatibility }) {
   const catLabel = CATEGORIES.find(c => c.id === category)?.label ?? category;
-  const filteredKakugen = kakugenList
-    .filter(k => k.level === difficulty)
-    .map(k => k.text);
+  const senpou = STRATEGY_TO_SENPOU[strategy] ?? "ibisha";
+
+  // tesuji → category:"kakugen" / hatten → category:"keisei" でフィルタ
+  const kakugenCategory = category === "tesuji" ? "kakugen" : "keisei";
+  const filteredKakugen = kakugenList.filter(
+    k => k.level === difficulty && k.senpou === senpou && k.category === kakugenCategory
+  );
 
   const categoryGuide = buildCategoryGuide(
     category, difficulty, strategy, filteredKakugen, kakoiCompatibility
@@ -89,7 +91,6 @@ export function makeQuestionPrompt({ category, difficulty, strategy, usedAnswers
     ? `\n【禁止】以下は直近の出題済み解答です。同じ答えになる問題は絶対に出さないこと：${usedAnswers.map(a => `「${a}」`).join("、")}`
     : "";
 
-  // ランダムシードを付与して出題のばらつきを促す
   const seed = Math.floor(Math.random() * 100000);
 
   return `乱数シード:${seed}\nカテゴリ「${catLabel}」、難易度「${difficulty}」（${DIFF_DESC[difficulty]}）で問題を1問出題してください。
