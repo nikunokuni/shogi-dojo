@@ -17,7 +17,7 @@ export function useQuiz() {
   // ── 設定 ──
   const [category, setCategory] = useState(null);
   const [difficulty, setDifficulty] = useState("初級");
-  const [strategy, setStrategy] = useState("居飛車全般");
+  const [strategy, setStrategy] = useState("居飛車");
 
   // ── クイズ ──
   const [question, setQuestion] = useState(null);
