@@ -78,6 +78,12 @@ export const STRATEGIES = [
   "居飛車","振り飛車",
 ];
 
+// 戦法ラベル → 格言データの senpou タグへの対応表
+export const STRATEGY_SENPOU = {
+  "居飛車": "ibisha",
+  "振り飛車": "furibisha",
+};
+
 // ─── localStorage キー ────────────────────────────────────────────────────────
 
 export const STORAGE_KEY_AFFINITY = "shogi_affinity";

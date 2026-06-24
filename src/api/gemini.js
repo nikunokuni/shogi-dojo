@@ -1,7 +1,7 @@
 import { makeSystemPrompt } from "./prompts";
 
-const GEMINI_MODEL = "gemini-2.5-flash-lite";
-const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
+// APIキーはサーバーレス関数（/api/generate）側に保持し、クライアントには露出させない。
+const PROXY_URL = "/api/generate";
 const MAX_OUTPUT_TOKENS = 600;
 const TEMPERATURE = 1.0;
 
@@ -19,11 +19,6 @@ function cleanJsonText(raw) {
  * @throws {Error} ネットワーク失敗・非 OK レスポンス・JSON パース失敗時
  */
 export async function callGemini(messages, character) {
-  const apiKey = process.env.REACT_APP_GEMINI_API_KEY ?? "";
-  if (!apiKey) {
-    throw new Error("REACT_APP_GEMINI_API_KEY が設定されていません");
-  }
-
   const systemText = makeSystemPrompt(character);
 
   // Gemini の contents 形式に変換
@@ -37,11 +32,9 @@ export async function callGemini(messages, character) {
     })),
   ];
 
-  const url = `${GEMINI_BASE_URL}/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-
   let res;
   try {
-    res = await fetch(url, {
+    res = await fetch(PROXY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

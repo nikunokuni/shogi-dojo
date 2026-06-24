@@ -50,7 +50,7 @@ export const KAKUGEN_LIST = [
   {"text": "桂の高跳び歩のえじき", "level": "初級", "senpou": "common", "category": "kakugen", "meaning": "高く跳ねた桂馬は歩で突かれると逃げ場がなくなりタダで取られやすいこと。"},
   {"text": "竜は敵陣に馬は自陣に", "level": "中級", "senpou": "common", "category": "kakugen", "meaning": "竜は攻撃的に、馬は守備的に使うとバランスが取れること。"},
   {"text": "遠見の角に好手あり", "level": "中級", "senpou": "common", "category": "kakugen", "meaning": "遠くから盤面全体を睨む位置に配置された角が好手の源泉になること。"},
-  {"text": "振り飛車には角交換", "level": "中級", "senpou": "huribisha", "category": "kakugen", "meaning": "振り飛車に対しては角を交換することで相手の陣形を乱す狙いがあること。"},
+  {"text": "振り飛車には角交換", "level": "中級", "senpou": "furibisha", "category": "kakugen", "meaning": "振り飛車に対しては角を交換することで相手の陣形を乱す狙いがあること。"},
   {"text": "角の頭は丸い", "level": "中級", "senpou": "common", "category": "kakugen", "meaning": "角は斜めに効くが直上の頭が弱いためそこを狙われやすいこと。"},
   {"text": "金はななめに誘え", "level": "中級", "senpou": "common", "category": "kakugen", "meaning": "金は斜めの動きを誘い出して相手の陣形を崩すテクニックがあること。"},
   {"text": "銀は千鳥に使え", "level": "中級", "senpou": "common", "category": "kakugen", "meaning": "銀を前後左右にジグザグに使うことで攻守に活用できること。"},

@@ -84,6 +84,11 @@ export function useQuiz() {
         newChar
       );
 
+      // 4択は正解が先頭に来るため、表示前にシャッフルする（判定は q.ans で行うので順序は無関係）
+      if (q?.choices && Array.isArray(q.choices)) {
+        q.choices = [...q.choices].sort(() => Math.random() - 0.5);
+      }
+
       // 使用済み解答を更新（重複出題防止）
       if (q?.ans) {
         setUsedAnswers(prev => ({

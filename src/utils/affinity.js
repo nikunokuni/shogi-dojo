@@ -5,7 +5,7 @@ import { AFFINITY_RANKS, DEFAULT_AFFINITY, STORAGE_KEY_AFFINITY } from "../data/
  * @param {number} score 0〜100
  */
 export function getAffinityRank(score) {
-  return AFFINITY_RANKS.find(r => score <= r.max) ?? AFFINITY_RANKS[AFFINITY_RANKS.length - 1];
+  return AFFINITY_RANKS.find(r => score >= r.min && score <= r.max) ?? AFFINITY_RANKS[AFFINITY_RANKS.length - 1];
 }
 
 /**

@@ -1,4 +1,4 @@
-import { CATEGORIES, DIFF_DESC, STRATEGIES} from "../data/constants";
+import { CATEGORIES, DIFF_DESC, STRATEGY_SENPOU } from "../data/constants";
 // NOTE: KAKUGEN_LIST と KAKOI_COMPATIBILITY は呼び出し元から渡す設計にすることで
 //       このファイルをデータに依存させず、テストしやすくする
 
@@ -75,7 +75,7 @@ function buildCategoryGuide(category, difficulty, strategy, kakugenList, kakoiLi
  */
 export function makeQuestionPrompt({ category, difficulty, strategy, usedAnswers, kakugenList, kakoiCompatibility }) {
   const catLabel = CATEGORIES.find(c => c.id === category)?.label ?? category;
-  const senpou = STRATEGIES[strategy] ?? "ibisha";
+  const senpou = STRATEGY_SENPOU[strategy] ?? "ibisha";
 
   // tesuji → category:"kakugen" / hatten → category:"keisei" でフィルタ
   const kakugenCategory = category === "tesuji" ? "kakugen" : "keisei";
