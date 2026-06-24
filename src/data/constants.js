@@ -88,7 +88,10 @@ export const STRATEGY_SENPOU = {
 
 export const STORAGE_KEY_AFFINITY = "shogi_affinity";
 
-export const DEFAULT_AFFINITY = { tsurugi: 50, iroha: 50, kaede: 50 };
+export const DEFAULT_AFFINITY = { tsurugi: 30, iroha: 30, kaede: 30 };
+
+// 親密度のフォールバック既定値（データ欠損時に使用）
+export const DEFAULT_AFFINITY_SCORE = 30;
 
 // 使用済み解答の最大保持数
 export const MAX_USED_ANSWERS = 20;

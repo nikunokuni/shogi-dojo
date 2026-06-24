@@ -6,7 +6,6 @@ import { pickCharacter } from "../utils/character";
 import { MAX_USED_ANSWERS, USED_ANSWERS_HISTORY_SIZE } from "../data/constants";
 // NOTE: データは呼び出し元から注入する（テスト容易性のため）
 import { KAKUGEN_LIST, KAKOI_COMPATIBILITY } from "../data/kakugen";
-import { STRATEGIES } from '../data/constants'; 
 /**
  * クイズの全ステート・ロジックを管理するカスタムフック
  */
@@ -85,8 +84,14 @@ export function useQuiz() {
       );
 
       // 4択は正解が先頭に来るため、表示前にシャッフルする（判定は q.ans で行うので順序は無関係）
+      // Fisher–Yates で偏りなくシャッフルする
       if (q?.choices && Array.isArray(q.choices)) {
-        q.choices = [...q.choices].sort(() => Math.random() - 0.5);
+        const shuffled = [...q.choices];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        q.choices = shuffled;
       }
 
       // 使用済み解答を更新（重複出題防止）
@@ -130,6 +135,16 @@ export function useQuiz() {
         }],
         character
       );
+
+      // 4択の正誤はクライアント側で確定する（LLM の判定揺れに依存しない）。
+      // 解答・解説も問題データを正とし、AI 応答が欠けても表示できるようにする。
+      if (question.format === "4択") {
+        fb.correct = userAnswer.trim() === String(question.ans ?? "").trim();
+        fb.model = {
+          ans: question.ans,
+          exp: question.exp ?? fb.model?.exp ?? "",
+        };
+      }
 
       setFeedback(fb);
       setStats(prev => ({ ...prev, total: prev.total + 1 }));

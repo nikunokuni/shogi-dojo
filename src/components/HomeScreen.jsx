@@ -1,5 +1,5 @@
 import { s } from "../styles";
-import { CATEGORIES, CHARACTERS, DIFFICULTIES, STRATEGIES, DIFF_COLOR } from "../data/constants";
+import { CATEGORIES, CHARACTERS, DIFFICULTIES, STRATEGIES, DIFF_COLOR, DEFAULT_AFFINITY_SCORE } from "../data/constants";
 import { getAffinityRank } from "../utils/affinity";
 import { getRandomKobanashi } from "../data/kobanashi";
 import { Shell, KobanashiModal } from "./shared";
@@ -82,7 +82,7 @@ export function HomeScreen({
         {/* 小話ボタン */}
         <div style={s.kobanashiRow}>
           {CHARACTERS.map(c => {
-            const score = affinity[c.id] ?? 50;
+            const score = affinity[c.id] ?? DEFAULT_AFFINITY_SCORE;
             const rankObj = getAffinityRank(score);
             return (
               <button

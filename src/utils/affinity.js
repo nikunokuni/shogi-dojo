@@ -1,4 +1,11 @@
-import { AFFINITY_RANKS, DEFAULT_AFFINITY, STORAGE_KEY_AFFINITY } from "../data/constants";
+import { AFFINITY_RANKS, DEFAULT_AFFINITY, DEFAULT_AFFINITY_SCORE, STORAGE_KEY_AFFINITY } from "../data/constants";
+
+/** 親密度スコアを 0〜100 の整数に正規化する。不正値は既定値にフォールバック */
+function sanitizeScore(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return DEFAULT_AFFINITY_SCORE;
+  return Math.min(100, Math.max(0, Math.round(n)));
+}
 
 /**
  * スコアに対応する親密度ランクを返す
@@ -15,7 +22,19 @@ export function getAffinityRank(score) {
 export function loadAffinity() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_AFFINITY);
-    return raw ? JSON.parse(raw) : { ...DEFAULT_AFFINITY };
+    if (!raw) return { ...DEFAULT_AFFINITY };
+
+    const parsed = JSON.parse(raw);
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+      return { ...DEFAULT_AFFINITY };
+    }
+
+    // 既定キーを基準に、保存値を正規化してマージする（不正値・欠損を弾く）
+    const result = { ...DEFAULT_AFFINITY };
+    for (const key of Object.keys(DEFAULT_AFFINITY)) {
+      if (key in parsed) result[key] = sanitizeScore(parsed[key]);
+    }
+    return result;
   } catch {
     return { ...DEFAULT_AFFINITY };
   }
@@ -40,10 +59,10 @@ export function saveAffinity(data) {
  * @param {number} delta 変化量
  */
 export function applyAffinityDelta(current, characterId, delta) {
-  const prev = current[characterId] ?? DEFAULT_AFFINITY[characterId] ?? 20;
+  const prev = sanitizeScore(current[characterId] ?? DEFAULT_AFFINITY[characterId] ?? DEFAULT_AFFINITY_SCORE);
   return {
     ...current,
-    [characterId]: Math.min(100, Math.max(0, prev + delta)),
+    [characterId]: sanitizeScore(prev + delta),
   };
 }
 

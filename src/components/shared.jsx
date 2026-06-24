@@ -1,5 +1,6 @@
 import { s } from "../styles";
 import { getAffinityRank } from "../utils/affinity";
+import { DEFAULT_AFFINITY_SCORE } from "../data/constants";
 
 // ─── シェル（共通レイアウト） ──────────────────────────────────────────────────
 
@@ -63,6 +64,7 @@ export function FeedRow({ tag, color, text }) {
 
 const MODEL_ANSWER_ROWS = [
   { icon: "💡", label: "解答",         key: "ans" },
+  { icon: "📖", label: "解説",         key: "exp" },
   { icon: "🔍", label: "盤面に注目",   key: "focus" },
   { icon: "🎯", label: "後の狙い",     key: "aim" },
   { icon: "📌", label: "覚え方・応用", key: "tip" },
@@ -134,7 +136,7 @@ export function KobanashiModal({ modal, onClose }) {
 // ─── 親密度バー ───────────────────────────────────────────────────────────────
 
 export function AffinityBar({ character, affinity, delta }) {
-  const score = affinity[character.id] ?? 50;
+  const score = affinity[character.id] ?? DEFAULT_AFFINITY_SCORE;
   const rankObj = getAffinityRank(score);
 
   return (

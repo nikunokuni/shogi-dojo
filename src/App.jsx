@@ -45,7 +45,7 @@ export default function App() {
         onShowHint={() => quiz.setShowHint(true)}
         onRevealAns={() => quiz.setRevealAns(true)}
         onSubmit={quiz.submitAnswer}
-        onBack={() => quiz.setScreen ? quiz.goHome() : null}
+        onBack={quiz.goHome}
       />
     );
   }
