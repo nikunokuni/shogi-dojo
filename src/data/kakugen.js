@@ -14,7 +14,6 @@ export const KAKUGEN_LIST = [
   {"text": "王手は追う手", "level": "初級", "senpou": "common", "category": "kakugen", "meaning": "やみくもに王手をかけると相手玉を安全な場所へ逃がしてしまうこと。"},
   {"text": "玉の早逃げ八手の得", "level": "初級", "senpou": "common", "category": "kakugen", "meaning": "玉は早めに逃げておけば後から数手分の価値を生むこと。"},
   {"text": "居玉はさけよ", "level": "初級", "senpou": "common", "category": "kakugen", "meaning": "初期配置のままの玉は弱いため早めに囲って安全を確保すべきであること。"},
-  {"text": "初王手目の薬", "level": "初級", "senpou": "common", "category": "kakugen", "meaning": "最初の王手は局面を好転させる良いきっかけになることが多いこと。"},
   {"text": "玉は敵の角筋を避けよ", "level": "初級", "senpou": "common", "category": "kakugen", "meaning": "角の利きは遠くまで届くため玉をそこから外して安全を確保すること。"},
   {"text": "玉は包むように寄せよ", "level": "中級", "senpou": "common", "category": "kakugen", "meaning": "玉を逃がさないよう周囲を包囲するように攻めるのが定石であること。"},
   {"text": "玉は下段に落とせ", "level": "中級", "senpou": "common", "category": "kakugen", "meaning": "玉を上部に逃がさず一段目に押し込むことで詰ませやすくなること。"},
@@ -116,7 +115,7 @@ export const KAKUGEN_LIST = [
 export const KAKOI_COMPATIBILITY = [
   {
     "name": "総矢倉",
-    "level": "",
+    "level": "中級",
     "category": {
       "type": "ibisha",
       "structure": "vertical"
@@ -127,7 +126,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "方矢倉（片矢倉）",
-    "level": "",
+    "level": "中級",
     "category": {
       "type": "ibisha",
       "structure": "vertical"
@@ -137,8 +136,8 @@ export const KAKOI_COMPATIBILITY = [
     "koukana_seme": "一段目（底）への飛車・金の打ち込み、端攻め、斜めのラインからのこじ開け"
   },
   {
-    "name": "土肥矢倉（土居矢倉）",
-    "level": "",
+    "name": "土居矢倉",
+    "level": "中級",
     "category": {
       "type": "ibisha",
       "structure": "vertical"
@@ -149,7 +148,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "天守閣美濃",
-    "level": "",
+    "level": "中級",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -160,7 +159,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "左美濃",
-    "level": "",
+    "level": "初級",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -171,7 +170,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "エルモ囲い",
-    "level": "",
+    "level": "中級",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -182,7 +181,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "ボナンザ囲い",
-    "level": "",
+    "level": "中級",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -193,7 +192,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "中住まい",
-    "level": "",
+    "level": "初級",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -204,7 +203,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "アヒル囲い",
-    "level": "",
+    "level": "上級",
     "category": {
       "type": "common",
       "structure": "lateral"
@@ -215,7 +214,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "美濃囲い",
-    "level": "",
+    "level": "初級",
     "category": {
       "type": "furibisha",
       "structure": "lateral"
@@ -226,7 +225,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "片美濃囲い",
-    "level": "",
+    "level": "初級",
     "category": {
       "type": "furibisha",
       "structure": "lateral"
@@ -237,7 +236,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "高美濃囲い",
-    "level": "",
+    "level": "初級",
     "category": {
       "type": "furibisha",
       "structure": "lateral"
@@ -248,7 +247,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "銀冠",
-    "level": "",
+    "level": "中級",
     "category": {
       "type": "furibisha",
       "structure": "vertical"
@@ -259,7 +258,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "穴熊",
-    "level": "",
+    "level": "中級",
     "category": {
       "type": "common",
       "structure": "absolute"
@@ -270,7 +269,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "金無双",
-    "level": "",
+    "level": "初級",
     "category": {
       "type": "furibisha",
       "structure": "vertical"
@@ -281,7 +280,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "舟囲い",
-    "level": "",
+    "level": "初級",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -292,7 +291,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "カニ囲い",
-    "level": "",
+    "level": "初級",
     "category": {
       "type": "ibisha",
       "structure": "vertical"
@@ -303,7 +302,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "雁木囲い",
-    "level": "",
+    "level": "中級",
     "category": {
       "type": "ibisha",
       "structure": "vertical"
@@ -314,7 +313,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "金美濃",
-    "level": "",
+    "level": "上級",
     "category": {
       "type": "furibisha",
       "structure": "lateral"
@@ -325,7 +324,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "木村美濃",
-    "level": "",
+    "level": "上級",
     "category": {
       "type": "furibisha",
       "structure": "vertical"
@@ -336,7 +335,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "ダイヤモンド美濃",
-    "level": "",
+    "level": "中級",
     "category": {
       "type": "furibisha",
       "structure": "lateral"
@@ -347,7 +346,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "松尾流穴熊",
-    "level": "",
+    "level": "上級",
     "category": {
       "type": "ibisha",
       "structure": "absolute"
@@ -358,7 +357,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "箱入り娘",
-    "level": "",
+    "level": "中級",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -369,7 +368,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "右玉",
-    "level": "",
+    "level": "中級",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -380,7 +379,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "左玉",
-    "level": "",
+    "level": "中級",
     "category": {
       "type": "furibisha",
       "structure": "lateral"
