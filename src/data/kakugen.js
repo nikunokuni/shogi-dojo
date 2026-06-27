@@ -116,6 +116,7 @@ export const KAKUGEN_LIST = [
 export const KAKOI_COMPATIBILITY = [
   {
     "name": "総矢倉",
+    "level": "",
     "category": {
       "type": "ibisha",
       "structure": "vertical"
@@ -126,6 +127,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "方矢倉（片矢倉）",
+    "level": "",
     "category": {
       "type": "ibisha",
       "structure": "vertical"
@@ -136,6 +138,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "土肥矢倉（土居矢倉）",
+    "level": "",
     "category": {
       "type": "ibisha",
       "structure": "vertical"
@@ -146,6 +149,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "天守閣美濃",
+    "level": "",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -156,6 +160,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "左美濃",
+    "level": "",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -166,6 +171,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "エルモ囲い",
+    "level": "",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -176,6 +182,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "ボナンザ囲い",
+    "level": "",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -186,6 +193,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "中住まい",
+    "level": "",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -196,6 +204,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "アヒル囲い",
+    "level": "",
     "category": {
       "type": "common",
       "structure": "lateral"
@@ -206,6 +215,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "美濃囲い",
+    "level": "",
     "category": {
       "type": "furibisha",
       "structure": "lateral"
@@ -216,6 +226,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "片美濃囲い",
+    "level": "",
     "category": {
       "type": "furibisha",
       "structure": "lateral"
@@ -226,6 +237,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "高美濃囲い",
+    "level": "",
     "category": {
       "type": "furibisha",
       "structure": "lateral"
@@ -236,6 +248,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "銀冠",
+    "level": "",
     "category": {
       "type": "furibisha",
       "structure": "vertical"
@@ -246,6 +259,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "穴熊",
+    "level": "",
     "category": {
       "type": "common",
       "structure": "absolute"
@@ -256,6 +270,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "金無双",
+    "level": "",
     "category": {
       "type": "furibisha",
       "structure": "vertical"
@@ -266,6 +281,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "舟囲い",
+    "level": "",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -276,6 +292,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "カニ囲い",
+    "level": "",
     "category": {
       "type": "ibisha",
       "structure": "vertical"
@@ -286,6 +303,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "雁木囲い",
+    "level": "",
     "category": {
       "type": "ibisha",
       "structure": "vertical"
@@ -296,6 +314,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "金美濃",
+    "level": "",
     "category": {
       "type": "furibisha",
       "structure": "lateral"
@@ -306,6 +325,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "木村美濃",
+    "level": "",
     "category": {
       "type": "furibisha",
       "structure": "vertical"
@@ -316,6 +336,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "ダイヤモンド美濃",
+    "level": "",
     "category": {
       "type": "furibisha",
       "structure": "lateral"
@@ -326,6 +347,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "松尾流穴熊",
+    "level": "",
     "category": {
       "type": "ibisha",
       "structure": "absolute"
@@ -336,6 +358,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "箱入り娘",
+    "level": "",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -346,6 +369,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "右玉",
+    "level": "",
     "category": {
       "type": "ibisha",
       "structure": "lateral"
@@ -356,6 +380,7 @@ export const KAKOI_COMPATIBILITY = [
   },
   {
     "name": "左玉",
+    "level": "",
     "category": {
       "type": "furibisha",
       "structure": "lateral"

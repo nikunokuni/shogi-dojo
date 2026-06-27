@@ -22,6 +22,7 @@ export function QuizScreen({
   onRevealAns,
   onSubmit,
   onBack,
+  onRetry,
 }) {
   const catObj = CATEGORIES.find(c => c.id === category);
   const isSubmitDisabled = !userAnswer.trim() || loading;
@@ -46,7 +47,17 @@ export function QuizScreen({
         {loading && !question && <Spinner />}
 
         {/* エラー */}
-        {error && <p style={s.errText}>{error}</p>}
+        {error && (
+          <div style={{ textAlign: "center" }}>
+            <p style={s.errText}>{error}</p>
+            <div style={s.btnRow}>
+              <button style={s.ghostBtn} onClick={onBack}>← 戻る</button>
+              <button style={s.redBtn} onClick={onRetry} disabled={loading}>
+                {loading ? "再取得中…" : "再試行 ↻"}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* 問題 */}
         {question && !error && (
@@ -65,10 +76,12 @@ export function QuizScreen({
             {/* 入力エリア */}
             {question.format === "4択"
               ? (
-                <div style={s.choicesGrid}>
+                <div style={s.choicesGrid} role="radiogroup" aria-label="選択肢">
                   {(question.choices ?? []).map((choice, i) => (
                     <button
                       key={i}
+                      role="radio"
+                      aria-checked={userAnswer === choice}
                       style={{
                         ...s.choiceBtn,
                         ...(userAnswer === choice
@@ -88,7 +101,15 @@ export function QuizScreen({
                   rows={3}
                   value={userAnswer}
                   onChange={e => onAnswerChange(e.target.value)}
-                  placeholder="答えや考え方を書く…"
+                  onKeyDown={e => {
+                    // Ctrl/Cmd + Enter で送信
+                    if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && !isSubmitDisabled) {
+                      e.preventDefault();
+                      onSubmit();
+                    }
+                  }}
+                  aria-label="答えや考え方を入力"
+                  placeholder="答えや考え方を書く…（Ctrl+Enterで送信）"
                 />
               )
             }

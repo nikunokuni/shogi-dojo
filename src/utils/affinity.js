@@ -75,5 +75,7 @@ export function calcAffinityDelta(format, correct) {
   if (format === "4択") {
     return correct === false ? -3 : 5;
   }
-  return 5; // 記述は常に +5
+  // 記述は正誤の確定信号がないため一律加点だが、毎回 +5 だと
+  // すぐ上限（相棒）に張り付くため控えめの +3 とし、到達に手応えを持たせる。
+  return 3;
 }

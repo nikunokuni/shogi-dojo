@@ -46,6 +46,7 @@ export default function App() {
         onRevealAns={() => quiz.setRevealAns(true)}
         onSubmit={quiz.submitAnswer}
         onBack={quiz.goHome}
+        onRetry={() => quiz.startQuiz(quiz.category)}
       />
     );
   }
@@ -57,6 +58,7 @@ export default function App() {
         category={quiz.category}
         difficulty={quiz.difficulty}
         question={quiz.question}
+        userAnswer={quiz.userAnswer}
         feedback={quiz.feedback}
         affinity={quiz.affinity}
         affinityDelta={quiz.affinityDelta}

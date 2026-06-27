@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { callGemini } from "../api/gemini";
 import { makeQuestionPrompt, makeFeedbackPrompt } from "../api/prompts";
 import { loadAffinity, saveAffinity, applyAffinityDelta, calcAffinityDelta } from "../utils/affinity";
+import { loadStats, saveStats } from "../utils/stats";
+import { reconcileChoices, grade4taku } from "../utils/question";
 import { pickCharacter } from "../utils/character";
 import { MAX_USED_ANSWERS, USED_ANSWERS_HISTORY_SIZE } from "../data/constants";
 // NOTE: データは呼び出し元から注入する（テスト容易性のため）
@@ -34,7 +36,7 @@ export function useQuiz() {
   const [kobanashiModal, setKobanashiModal] = useState(null); // { character, text } | null
 
   // ── 統計 ──
-  const [stats, setStats] = useState({ total: 0 });
+  const [stats, setStats] = useState(() => loadStats());
 
   // ── 使用済み解答（重複出題防止） ──
   const [usedAnswers, setUsedAnswers] = useState({});
@@ -42,6 +44,9 @@ export function useQuiz() {
   // ── 非同期状態 ──
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // ── リクエスト世代カウンタ（画面離脱後の古い応答で state を書き換えないためのガード） ──
+  const requestIdRef = useRef(0);
 
   // ── クイズ UI リセット ──
   function resetQuizUiState() {
@@ -58,17 +63,22 @@ export function useQuiz() {
    * @param {string} cat カテゴリ ID
    */
   async function startQuiz(cat) {
+    const reqId = ++requestIdRef.current;
+
     setCategory(cat);
     setScreen("quiz");
     setLoading(true);
     resetQuizUiState();
 
     try {
-      const history = (usedAnswers[cat] ?? []).slice(-USED_ANSWERS_HISTORY_SIZE);
+      // 重複出題防止の履歴はカテゴリ・難易度・戦法ごとに分離する
+      // （設定を切り替えたときに正当な問題が無駄に弾かれないように）
+      const usedKey = `${cat}__${difficulty}__${strategy}`;
+      const history = (usedAnswers[usedKey] ?? []).slice(-USED_ANSWERS_HISTORY_SIZE);
       const newChar = pickCharacter();
       setCharacter(newChar);
 
-      const q = await callGemini(
+      let q = await callGemini(
         [{
           role: "user",
           content: makeQuestionPrompt({
@@ -82,6 +92,12 @@ export function useQuiz() {
         }],
         newChar
       );
+
+      // 画面を離れた・別リクエストが始まった場合は、この応答を反映しない
+      if (reqId !== requestIdRef.current) return;
+
+      // 4択の ans と choices の表記揺れを吸収し、正解を必ず choices 内のテキストに揃える
+      q = reconcileChoices(q);
 
       // 4択は正解が先頭に来るため、表示前にシャッフルする（判定は q.ans で行うので順序は無関係）
       // Fisher–Yates で偏りなくシャッフルする
@@ -98,16 +114,17 @@ export function useQuiz() {
       if (q?.ans) {
         setUsedAnswers(prev => ({
           ...prev,
-          [cat]: [...(prev[cat] ?? []), q.ans].slice(-MAX_USED_ANSWERS),
+          [usedKey]: [...(prev[usedKey] ?? []), q.ans].slice(-MAX_USED_ANSWERS),
         }));
       }
 
       setQuestion(q);
     } catch (e) {
+      if (reqId !== requestIdRef.current) return;
       console.error("[startQuiz]", e);
       setError("問題の取得に失敗しました。再度お試しください。");
     } finally {
-      setLoading(false);
+      if (reqId === requestIdRef.current) setLoading(false);
     }
   }
 
@@ -117,37 +134,74 @@ export function useQuiz() {
   async function submitAnswer() {
     if (!userAnswer.trim() || loading) return;
 
+    const reqId = ++requestIdRef.current;
+    const is4taku = question.format === "4択";
+
     setLoading(true);
     setError(null);
 
     try {
-      const fb = await callGemini(
-        [{
-          role: "user",
-          content: makeFeedbackPrompt({
-            question: question.q,
-            userAnswer,
-            modelAnswer: question.ans,
-            keywords: question.keywords,
-            characterName: character?.name ?? null,
-            format: question.format,
-          }),
-        }],
-        character
-      );
+      let fb;
 
-      // 4択の正誤はクライアント側で確定する（LLM の判定揺れに依存しない）。
-      // 解答・解説も問題データを正とし、AI 応答が欠けても表示できるようにする。
-      if (question.format === "4択") {
-        fb.correct = userAnswer.trim() === String(question.ans ?? "").trim();
-        fb.model = {
-          ans: question.ans,
-          exp: question.exp ?? fb.model?.exp ?? "",
+      if (is4taku) {
+        // 4択は正誤・解答・解説をすべて問題データから確定する（LLM 判定の揺れに依存しない）。
+        // キャラのコメントだけ LLM から取得するが、失敗してもデフォルトで結果表示できるようにする。
+        const correct = grade4taku(userAnswer, question.ans);
+        let msg = correct ? "正解です！その調子！" : "惜しい！解説で確認してみよう。";
+        try {
+          const comment = await callGemini(
+            [{
+              role: "user",
+              content: makeFeedbackPrompt({
+                question: question.q,
+                userAnswer,
+                modelAnswer: question.ans,
+                keywords: question.keywords,
+                characterName: character?.name ?? null,
+                format: question.format,
+              }),
+            }],
+            character
+          );
+          if (comment?.msg) msg = comment.msg;
+        } catch (commentErr) {
+          // コメント取得失敗は致命的でない。デフォルトコメントで続行する。
+          console.warn("[submitAnswer] comment fetch failed", commentErr);
+        }
+
+        fb = {
+          type: "fb",
+          correct,
+          msg,
+          model: { ans: question.ans, exp: question.exp ?? "" },
         };
+      } else {
+        // 記述は LLM の採点に依存する（失敗時はエラー表示）
+        fb = await callGemini(
+          [{
+            role: "user",
+            content: makeFeedbackPrompt({
+              question: question.q,
+              userAnswer,
+              modelAnswer: question.ans,
+              keywords: question.keywords,
+              characterName: character?.name ?? null,
+              format: question.format,
+            }),
+          }],
+          character
+        );
       }
 
+      // 画面を離れた・別リクエストが始まった場合は反映しない
+      if (reqId !== requestIdRef.current) return;
+
       setFeedback(fb);
-      setStats(prev => ({ ...prev, total: prev.total + 1 }));
+      setStats(prev => {
+        const updated = { ...prev, total: prev.total + 1 };
+        saveStats(updated);
+        return updated;
+      });
 
       // 親密度を更新
       if (character) {
@@ -162,16 +216,20 @@ export function useQuiz() {
 
       setScreen("result");
     } catch (e) {
+      if (reqId !== requestIdRef.current) return;
       console.error("[submitAnswer]", e);
       setError("採点に失敗しました。もう一度お試しください。");
     } finally {
-      setLoading(false);
+      if (reqId === requestIdRef.current) setLoading(false);
     }
   }
 
   /** 結果画面からホームへ戻る */
   function goHome() {
+    // 進行中のリクエスト応答を無効化（ホームに戻った後に勝手に画面遷移させない）
+    requestIdRef.current++;
     setAffinityDelta(null);
+    setLoading(false);
     setScreen("home");
   }
 

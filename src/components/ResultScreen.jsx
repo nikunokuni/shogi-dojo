@@ -10,6 +10,7 @@ export function ResultScreen({
   category,
   difficulty,
   question,
+  userAnswer,
   feedback,
   affinity,
   affinityDelta,
@@ -19,6 +20,9 @@ export function ResultScreen({
 }) {
   const catObj = CATEGORIES.find(c => c.id === category);
   const is4択 = question?.format === "4択";
+
+  // 4択の正解・自分の選択を比較するための正規化ヘルパー
+  const norm = v => String(v ?? "").replace(/　/g, " ").trim().replace(/[。、．，\s]+$/u, "");
 
   return (
     <Shell total={stats.total}>
@@ -59,6 +63,27 @@ export function ResultScreen({
             >
               {feedback.correct ? "正解！" : "不正解"}
             </span>
+          </div>
+        )}
+
+        {/* 4択：選択肢の正解・自分の選択を可視化 */}
+        {is4択 && Array.isArray(question?.choices) && (
+          <div style={s.choicesGrid}>
+            {question.choices.map((choice, i) => {
+              const isCorrect = norm(choice) === norm(question.ans);
+              const isPicked = norm(choice) === norm(userAnswer);
+              const style = isCorrect
+                ? { borderColor: "#27ae60", background: "rgba(39,174,96,0.15)" }
+                : isPicked
+                  ? { borderColor: "#c0392b", background: "rgba(192,57,43,0.15)" }
+                  : { opacity: 0.6 };
+              return (
+                <div key={i} style={{ ...s.choiceBtn, cursor: "default", ...style }}>
+                  {isCorrect ? "⭕ " : isPicked ? "❌ " : ""}{choice}
+                  {isPicked && <span style={{ fontSize: 11, marginLeft: 6, color: "#aaa" }}>（あなたの回答）</span>}
+                </div>
+              );
+            })}
           </div>
         )}
 

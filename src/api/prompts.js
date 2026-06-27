@@ -56,13 +56,17 @@ function buildCategoryGuide(category, difficulty, strategy, kakugenList, kakoiLi
       return `以下の形勢・大局観リストの中から難易度「${difficulty}」に合うものを選んで出題すること。リスト：${list.join("、")}。形勢判断や序中終盤の考え方を問う問題を出すこと。`;
     },
     kakoi: () => {
-      const data = kakoiList.map(k => ({
+      // 難易度で絞り込む。level 未設定（空）のデータしか無い場合は全件にフォールバック。
+      const matched = kakoiList.filter(k => k.level === difficulty);
+      const target = matched.length > 0 ? matched : kakoiList;
+
+      const data = target.map(k => ({
         囲い: k.name,
         弱点: k.yowami,
         有効な攻め: k.koukana_seme,
       }));
       const strategyPrefix = strategy ? `戦法「${strategy}」を使う側の視点で、` : "";
-      return `${strategyPrefix}特定の囲いに対する攻め方の考え方・相性を問う問題。囲いデータ：${JSON.stringify(data)}`;
+      return `${strategyPrefix}難易度「${difficulty}」で、特定の囲いに対する攻め方の考え方・相性を問う問題。囲いデータ：${JSON.stringify(data)}`;
     },
   };
 

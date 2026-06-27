@@ -2,12 +2,25 @@ import { makeSystemPrompt } from "./prompts";
 
 // APIキーはサーバーレス関数（/api/generate）側に保持し、クライアントには露出させない。
 const PROXY_URL = "/api/generate";
-const MAX_OUTPUT_TOKENS = 600;
+// 記述フィードバックの JSON は項目が多く、思考トークンも消費するため余裕を持たせる。
+// 小さすぎると JSON が途中で切れて parse に失敗する。
+const MAX_OUTPUT_TOKENS = 2048;
 const TEMPERATURE = 1.0;
 
-/** Markdown コードブロックや余分な空白を除去して JSON テキストを返す */
+/**
+ * LLM 応答から JSON 部分を抽出する。
+ * Markdown コードブロックを除去し、前置き・後置きの文章が付いていても
+ * 最初の `{` から最後の `}` までを取り出して parse できるようにする。
+ */
 function cleanJsonText(raw) {
-  return raw.replace(/```json|```/g, "").trim();
+  const stripped = raw.replace(/```json|```/g, "").trim();
+  // 最初の { から最後の } までを抜き出す（前後に文章が混ざっても拾えるように）
+  const start = stripped.indexOf("{");
+  const end = stripped.lastIndexOf("}");
+  if (start !== -1 && end !== -1 && end > start) {
+    return stripped.slice(start, end + 1);
+  }
+  return stripped;
 }
 
 /**
@@ -39,7 +52,12 @@ export async function callGemini(messages, character) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: geminiMessages,
-        generationConfig: { maxOutputTokens: MAX_OUTPUT_TOKENS, temperature: TEMPERATURE },
+        generationConfig: {
+          maxOutputTokens: MAX_OUTPUT_TOKENS,
+          temperature: TEMPERATURE,
+          // JSON 以外の文字（前置き・コードフェンス）を返させない
+          responseMimeType: "application/json",
+        },
       }),
     });
   } catch (networkError) {

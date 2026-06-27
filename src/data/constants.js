@@ -87,6 +87,7 @@ export const STRATEGY_SENPOU = {
 // ─── localStorage キー ────────────────────────────────────────────────────────
 
 export const STORAGE_KEY_AFFINITY = "shogi_affinity";
+export const STORAGE_KEY_STATS = "shogi_stats";
 
 export const DEFAULT_AFFINITY = { tsurugi: 30, iroha: 30, kaede: 30 };
 
